@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="theme-color" content="#2d6a4f">
+    <meta name="description" content="Great United Eastern Foundations - Empowering communities through sustainable livelihoods and inclusive economic growth.">
+    <title>Great United Eastern Foundations | Empowering Communities</title>
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <link rel="stylesheet" href="style1.css">
+</head>
+<body>
+
+<!-- Page Loader -->
+<div class="loader-wrapper">
+    <div class="loader"></div>
+</div>
+
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Sidebar Navigation -->
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <div class="sidebar-logo">
+            <img src="logo.jpg" alt="GUEF Logo" class="sidebar-logo-img">
+            <span class="sidebar-logo-text">GUEF</span>
+        </div>
+        <button class="sidebar-close" id="sidebarClose" aria-label="Close menu">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    
+    <div class="xsidebar-content">
+        <ul class="xsidebar-menu">
+            <li><a href="#home" class="sidebar-link active"><i class="fas fa-home"></i>Home</a></li>
+            <li><a href="#about" class="sidebar-link"><i class="fas fa-info-circle"></i>About</a></li>
+            <li><a href="#programs" class="sidebar-link"><i class="fas fa-seedling"></i>Programs</a></li>
+            <li><a href="#impact" class="sidebar-link"><i class="fas fa-chart-bar"></i>Our Impact</a></li>
+            <li><a href="#contact" class="sidebar-link"><i class="fas fa-envelope"></i>Contact</a></li>
+        </ul>
+        
+        <div class="sidebar-divider"></div>
+        
+        <div class="sidebar-actions">
+            <a href="login.php" class="sidebar-btn primary">Partner With Us</a>
+            <a href="aboutus.php" class="sidebar-btn secondary">Learn More</a>
+        </div>
+        
+        <div class="sidebar-social">
+            <a href="#" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+            <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+            <a href="#" aria-label="Twitter"><i class="fab fa-x-twitter"></i></a>
+            <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        </div>
+    </div>
+</aside>
+
+<!-- Navbar -->
+<header>
+    <div class="container nav">
+        <div class="logo-wrapper">
+            <img src="logo.jpg" alt="GUEF Logo" class="logo-img">
+            <h2 class="logo-text">GUEF</h2>
+        </div>
+        
+        <div class="nav-controls">
+            <!-- Theme Toggle -->
+            <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
+                <i class="fas fa-moon"></i>
+            </button>
+            
+            <!-- Desktop Navigation -->
+            <nav class="desktop-nav">
+                <a href="#home" class="nav-link active">Home</a>
+                <a href="#about" class="nav-link">About</a>
+                <a href="#programs" class="nav-link">Programs</a>
+                <a href="#impact" class="nav-link">Impact</a>
+                <a href="#contact" class="nav-link">Contact</a>
+            </nav>
+            
+            <!-- Hamburger Menu Button (Mobile) -->
+            <button class="hamburger" id="hamburger" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </div>
+</header>
+
+<!-- Hero with Slideshow -->
+<section class="hero" id="home">
+    <div class="slideshow-container">
+        <div class="slide fade">
+            <img src="1.jpg" alt="Community empowerment">
+        </div>
+        <div class="slide fade">
+            <img src="4.jpg" alt="Sustainable livelihoods">
+        </div>
+        <div class="slide fade">
+            <img src="6.jpg" alt="Skills development">
+        </div>
+    </div>
+    <div class="overlay">
+        <div class="container hero-content">
+            <h1>Empowering Communities for a Better Future</h1>
+            <p>
+                Supporting sustainable livelihoods, entrepreneurship, and inclusive economic growth.
+            </p>
+            <div class="buttons">
+                <a href="login.php" class="btn primary">Partner With Us</a>
+                <a href="aboutus.php" class="btn secondary">Learn More</a>
+            </div>
+        </div>
+    </div>
+    <!-- Slide Indicators -->
+    <div class="slide-dots">
+        <span class="dot active"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+    </div>
+</section>
+
+<!-- Impact Stats -->
+<section class="impact-stats" id="impact">
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-icon"><i class="fas fa-users"></i></div>
+                <div class="stat-number" data-target="5000">500</div>
+                <div class="stat-label">Lives Impacted</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon"><i class="fas fa-hand-holding-heart"></i></div>
+                <div class="stat-number" data-target="25">42+</div>
+                <div class="stat-label">Communities</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon"><i class="fas fa-seedling"></i></div>
+                <div class="stat-number" data-target="150">15</div>
+                <div class="stat-label">Projects Completed</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon"><i class="fas fa-graduation-cap"></i></div>
+                <div class="stat-number" data-target="1200">1000</div>
+                <div class="stat-label">Trained Individuals</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- About -->
+<section class="about container" id="about">
+    <h2>About Us</h2>
+    <p>
+        Great United Eastern Foundations is dedicated to alleviating poverty and promoting inclusive
+        economic empowerment through sustainable livelihoods, skills development, and community support systems.
+    </p>
+</section>
+
+<!-- Programs -->
+<section class="programs" id="programs">
+    <div class="container">
+        <h2>Our Focus Areas</h2>
+
+        <div class="cards">
+            <div class="card">
+                <div class="card-icon">🌱</div>
+                <h3>Sustainable Livelihoods</h3>
+                <p>Supporting agriculture, green technology, and community enterprises.</p>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">🎓</div>
+                <h3>Skills Development</h3>
+                <p>Vocational training, financial literacy, and entrepreneurship.</p>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">💼</div>
+                <h3>MSME Support</h3>
+                <p>Grants, microfinance, and business incubation services.</p>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">🌍</div>
+                <h3>Market Linkages</h3>
+                <p>Connecting local producers to global markets.</p>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">⚖️</div>
+                <h3>Policy Advocacy</h3>
+                <p>Promoting inclusive governance and economic policies.</p>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">🤝</div>
+                <h3>Community Support</h3>
+                <p>Strengthening community systems and cooperative growth.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials -->
+<section class="testimonials">
+    <div class="container">
+        <h2>What People Say</h2>
+        <div class="testimonial-slider">
+            <div class="testimonial-slides">
+                <div class="testimonial-slide">
+                    <div class="testimonial-content">
+                        <i class="fas fa-quote-left"></i>
+                        <p>GUEF transformed our community through their sustainable farming program. We now have food security and income.</p>
+                        <div class="testimonial-author">
+                            <img src="1.jpg" alt="Mary Wanjiku">
+                            <div>
+                                <h4>Mary Wanjiku</h4>
+                                <span>Farmer, Kiambu</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-slide">
+                    <div class="testimonial-content">
+                        <i class="fas fa-quote-left"></i>
+                        <p>The skills training I received helped me start my own business. I'm now employing three people from my village.</p>
+                        <div class="testimonial-author">
+                            <img src="4.jpg" alt="John Odhiambo">
+                            <div>
+                                <h4>John Odhiambo</h4>
+                                <span>Entrepreneur, Kisumu</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-slide">
+                    <div class="testimonial-content">
+                        <i class="fas fa-quote-left"></i>
+                        <p>Their microfinance program gave me the capital I needed. Today, my shop supports my entire family.</p>
+                        <div class="testimonial-author">
+                            <img src="6.jpg" alt="Grace Akinyi">
+                            <div>
+                                <h4>Grace Akinyi</h4>
+                                <span>Shop Owner, Nakuru</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="testimonial-prev" aria-label="Previous testimonial"><i class="fas fa-chevron-left"></i></button>
+            <button class="testimonial-next" aria-label="Next testimonial"><i class="fas fa-chevron-right"></i></button>
+            <div class="testimonial-dots"></div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Section -->
+<section class="contact" id="contact">
+    <div class="container">
+        <h2>Get In Touch</h2>
+        <div class="contact-info">
+            <div class="contact-item">
+                <i class="fas fa-phone-alt"></i>
+                <div>
+                    <h4>Phone</h4>
+                    <p>+254 700 000 000</p>
+                </div>
+            </div>
+            <div class="contact-item">
+                <i class="fas fa-envelope"></i>
+                <div>
+                    <h4>Email</h4>
+                    <p>info@guef.org</p>
+                </div>
+            </div>
+            <div class="contact-item">
+                <i class="fas fa-map-marker-alt"></i>
+                <div>
+                    <h4>Location</h4>
+                    <p>Nairobi, Kenya</p>
+                </div>
+            </div>
+        </div>
+        <div class="social-links">
+            <a href="#" class="social-icon whatsapp" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+            <a href="#" class="social-icon facebook" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+            <a href="#" class="social-icon twitter" aria-label="X (Twitter)"><i class="fab fa-x-twitter"></i></a>
+            <a href="#" class="social-icon instagram" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+            <a href="#" class="social-icon linkedin" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+        </div>
+    </div>
+</section>
+
+<!-- Newsletter -->
+<section class="newsletter">
+    <div class="container">
+        <div class="newsletter-content">
+            <h3>Stay Updated</h3>
+            <p>Subscribe to our newsletter for the latest updates and impact stories.</p>
+            <form class="newsletter-form" id="newsletterForm">
+                <input type="email" placeholder="Enter your email" required>
+                <button type="submit" class="btn primary">Subscribe</button>
+            </form>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="cta">
+    <div class="container">
+        <h2>Be Part of the Change</h2>
+        <p>Together, we can create sustainable impact in communities.</p>
+        <a href="login.php" class="btn primary">Login</a>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>Great United Eastern Foundations</h4>
+                <p>Empowering communities through sustainable development and inclusive growth.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#programs">Programs</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Follow Us</h4>
+                <div class="footer-social">
+                    <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 Great United Eastern Foundations | All Rights Reserved</p>
+        </div>
+    </div>
+</footer>
+
+<!-- Back to Top Button -->
+<button id="backToTop" class="back-to-top" aria-label="Back to top">
+    <i class="fas fa-arrow-up"></i>
+</button>
+
+<!-- JavaScript -->
+<script src="script.js"></script>
+</body>
+</html>
