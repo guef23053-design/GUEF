@@ -16,7 +16,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
-        /* ===== RESET & BASE ===== */
         * {
             margin: 0;
             padding: 0;
@@ -50,7 +49,6 @@
             padding: 20px;
         }
 
-        /* ===== AUTH CONTAINER ===== */
         .auth-container {
             width: 100%;
             max-width: 450px;
@@ -77,7 +75,6 @@
             }
         }
 
-        /* ===== LOGO SECTION ===== */
         .auth-logo {
             text-align: center;
             margin-bottom: 30px;
@@ -142,7 +139,6 @@
             letter-spacing: 0.5px;
         }
 
-        /* ===== FORM STYLES ===== */
         .auth-card h2 {
             font-size: 1.8rem;
             font-weight: 600;
@@ -329,11 +325,6 @@
             color: var(--primary);
         }
 
-        .back-home i {
-            font-size: 0.9rem;
-        }
-
-        /* Loading spinner */
         .loading-spinner {
             display: inline-block;
             width: 18px;
@@ -349,113 +340,78 @@
             to { transform: rotate(360deg); }
         }
 
-        /* ===== DARK MODE SUPPORT ===== */
         @media (prefers-color-scheme: dark) {
             body {
                 background: linear-gradient(135deg, #1a2a22 0%, #15261c 100%);
             }
-            
             .auth-card {
                 background: #2d2d2d;
                 border-color: #444;
             }
-            
             .org-name h3 {
                 color: #e0e0e0;
             }
-            
             .auth-card h2 {
                 color: #e0e0e0;
             }
-            
             form input {
                 background: #1e1e1e;
                 border-color: #444;
                 color: #e0e0e0;
             }
-            
             form input::placeholder {
                 color: #888;
             }
-            
             .auth-footer {
                 border-top-color: #444;
                 color: #aaa;
             }
-            
             .remember-me {
                 color: #aaa;
             }
         }
 
-        /* ===== MOBILE RESPONSIVE ===== */
         @media (max-width: 480px) {
             body {
                 padding: 15px;
                 align-items: flex-start;
             }
-            
             .auth-card {
                 padding: 30px 20px;
             }
-            
             .logo-img {
                 width: 70px;
                 height: 70px;
             }
-            
             .logo-text {
                 font-size: 1.1rem;
             }
-            
             .org-name h3 {
                 font-size: 1.1rem;
             }
-            
             .auth-card h2 {
                 font-size: 1.5rem;
             }
-            
             form input {
                 padding: 13px 13px 13px 42px;
                 font-size: 0.95rem;
             }
-            
             form button {
                 padding: 13px 20px;
                 font-size: 1rem;
             }
-            
             .form-options {
                 flex-direction: column;
                 gap: 10px;
                 align-items: flex-start;
             }
         }
-
-        @media (max-width: 360px) {
-            .logo-wrapper {
-                padding: 12px 18px 16px 18px;
-            }
-            
-            .logo-img {
-                width: 60px;
-                height: 60px;
-            }
-            
-            .logo-text {
-                font-size: 1rem;
-            }
-        }
     </style>
 </head>
 
 <body>
-
 <div class="auth-container">
     <div class="auth-card">
-
-        <!-- Logo Section -->
         <div class="auth-logo">
             <div class="logo-wrapper">
                 <img src="logo.jpg" alt="GUEF Logo" class="logo-img">
@@ -498,7 +454,7 @@
         </form>
 
         <div class="auth-footer">
-            <p>Don't have an account? <a href="registration.html">Create Account</a></p>
+            <p>Don't have an account? <a href="register.html">Create Account</a></p>
         </div>
 
         <div style="text-align: center;">
@@ -507,176 +463,195 @@
                 Back to Homepage
             </a>
         </div>
-
     </div>
 </div>
 
 <script>
-    // Supabase configuration
-    const SUPABASE_URL = 'https://itcogcebxavnrcfymfxc.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0Y29nY2VieGF2bnJjZnltZnhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwMTgzNjAsImV4cCI6MjA5NjU5NDM2MH0.x7m4wk9H5RtLpBqLTJraASXa22XlwwlDo_LamFwLgok';
-    
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // Wrap everything in an IIFE to avoid global scope conflicts
+    (function() {
+        // Supabase configuration
+        const SUPABASE_URL = 'https://itcogcebxavnrcfymfxc.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0Y29nY2VieGF2bnJjZnltZnhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwMTgzNjAsImV4cCI6MjA5NjU5NDM2MH0.x7m4wk9H5RtLpBqLTJraASXa22XlwwlDo_LamFwLgok';
+        
+        // Create Supabase client
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // Check for URL parameters
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('registered') === 'success') {
-        showMessage('Registration successful! Please login.', 'success');
-    }
-    if (urlParams.get('timeout') === '1') {
-        showMessage('Session expired. Please login again.', 'error');
-    }
+        // Check URL parameters for messages
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('registered') === 'success') {
+            showMessage('Registration successful! Please login.', 'success');
+        }
+        if (urlParams.get('timeout') === '1') {
+            showMessage('Session expired. Please login again.', 'error');
+        }
 
-    // Check if user is already logged in
-    checkExistingSession();
+        // Check if user is already logged in
+        checkExistingSession();
 
-    // Login form handler
-    document.getElementById('loginForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const username = document.getElementById('username').value.trim();
-        const password = document.getElementById('password').value;
-        const remember = document.getElementById('remember').checked;
-        
-        if (!username || !password) {
-            showMessage('Please enter both username and password', 'error');
-            return;
+        // Hash password using SHA-256
+        async function hashPassword(password) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(password);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
         }
-        
-        const loginBtn = document.getElementById('loginBtn');
-        const originalText = loginBtn.innerHTML;
-        loginBtn.innerHTML = '<span class="loading-spinner"></span>Logging in...';
-        loginBtn.disabled = true;
-        
-        try {
-            // Query users table for matching username
-            const { data: users, error } = await supabase
-                .from('users')
-                .select('id, username, email, full_name, role, password')
-                .eq('username', username)
-                .limit(1);
-            
-            if (error) throw error;
-            
-            if (!users || users.length === 0) {
-                showMessage('User not found!', 'error');
-                loginBtn.innerHTML = originalText;
-                loginBtn.disabled = false;
-                return;
-            }
-            
-            const user = users[0];
-            
-            // Verify password (using bcrypt comparison via Supabase function)
-            const { data: verifyData, error: verifyError } = await supabase
-                .rpc('verify_password', { 
-                    input_password: password, 
-                    stored_hash: user.password 
-                });
-            
-            if (verifyError) {
-                // Fallback: For development without RPC, compare directly
-                console.warn('RPC verify_password not available, using direct compare');
-                if (password === user.password || password === 'password123') {
-                    await completeLogin(user, remember);
-                } else {
-                    showMessage('Incorrect password!', 'error');
-                }
-            } else if (verifyData === true) {
-                await completeLogin(user, remember);
-            } else {
-                showMessage('Incorrect password!', 'error');
-            }
-            
-        } catch (error) {
-            console.error('Login error:', error);
-            showMessage('An error occurred. Please try again.', 'error');
-        } finally {
-            loginBtn.innerHTML = originalText;
-            loginBtn.disabled = false;
-        }
-    });
-    
-    async function completeLogin(user, remember) {
-        // Store user session in localStorage or sessionStorage
-        const sessionData = {
-            user_id: user.id,
-            username: user.username,
-            email: user.email,
-            full_name: user.full_name,
-            role: user.role || 'user',
-            loginTime: new Date().toISOString()
-        };
-        
-        if (remember) {
-            localStorage.setItem('guef_session', JSON.stringify(sessionData));
-        } else {
-            sessionStorage.setItem('guef_session', JSON.stringify(sessionData));
-        }
-        
-        showMessage('Login successful! Redirecting...', 'success');
-        
-        setTimeout(() => {
-            window.location.href = 'dashboard.html';
-        }, 1000);
-    }
-    
-    async function checkExistingSession() {
-        const session = localStorage.getItem('guef_session') || sessionStorage.getItem('guef_session');
-        if (session) {
-            try {
-                const userData = JSON.parse(session);
-                // Verify user still exists in database
-                const { data, error } = await supabase
-                    .from('users')
-                    .select('id')
-                    .eq('id', userData.user_id)
-                    .limit(1);
+
+        // Login form handler
+        const loginForm = document.getElementById('loginForm');
+        if (loginForm) {
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
                 
-                if (!error && data && data.length > 0) {
-                    window.location.href = 'dashboard.html';
+                const username = document.getElementById('username').value.trim();
+                const password = document.getElementById('password').value;
+                const remember = document.getElementById('remember').checked;
+                
+                if (!username || !password) {
+                    showMessage('Please enter both username and password', 'error');
+                    return;
                 }
-            } catch (e) {
-                console.error('Session check error:', e);
+                
+                const loginBtn = document.getElementById('loginBtn');
+                const originalText = loginBtn.innerHTML;
+                loginBtn.innerHTML = '<span class="loading-spinner"></span>Logging in...';
+                loginBtn.disabled = true;
+                
+                try {
+                    // Hash the input password
+                    const hashedPassword = await hashPassword(password);
+                    
+                    console.log('Looking for user:', username);
+                    
+                    // Query users table for matching username
+                    const { data: users, error } = await supabaseClient
+                        .from('users')
+                        .select('id, username, email, full_name, phone, county, role, password')
+                        .eq('username', username);
+                    
+                    if (error) {
+                        console.error('Supabase query error:', error);
+                        throw error;
+                    }
+                    
+                    console.log('Query result:', users);
+                    
+                    if (!users || users.length === 0) {
+                        showMessage('User not found! Please check your username.', 'error');
+                        loginBtn.innerHTML = originalText;
+                        loginBtn.disabled = false;
+                        return;
+                    }
+                    
+                    const user = users[0];
+                    
+                    // Compare hashed password
+                    if (user.password === hashedPassword) {
+                        console.log('Password match successful!');
+                        
+                        // Store user session
+                        const sessionData = {
+                            user_id: user.id,
+                            username: user.username,
+                            email: user.email,
+                            full_name: user.full_name,
+                            phone: user.phone,
+                            county: user.county,
+                            role: user.role || 'user',
+                            loginTime: new Date().toISOString()
+                        };
+                        
+                        if (remember) {
+                            localStorage.setItem('guef_session', JSON.stringify(sessionData));
+                        } else {
+                            sessionStorage.setItem('guef_session', JSON.stringify(sessionData));
+                        }
+                        
+                        showMessage('Login successful! Redirecting...', 'success');
+                        
+                        setTimeout(() => {
+                            window.location.href = 'dashboard.html';
+                        }, 1000);
+                    } else {
+                        console.log('Password mismatch');
+                        showMessage('Incorrect password! Please try again.', 'error');
+                    }
+                    
+                } catch (error) {
+                    console.error('Login error:', error);
+                    showMessage('An error occurred: ' + (error.message || 'Please try again.'), 'error');
+                } finally {
+                    loginBtn.innerHTML = originalText;
+                    loginBtn.disabled = false;
+                }
+            });
+        }
+        
+        async function checkExistingSession() {
+            const session = localStorage.getItem('guef_session') || sessionStorage.getItem('guef_session');
+            if (session) {
+                try {
+                    const userData = JSON.parse(session);
+                    // Verify user still exists in database
+                    const { data, error } = await supabaseClient
+                        .from('users')
+                        .select('id')
+                        .eq('id', userData.user_id)
+                        .limit(1);
+                    
+                    if (!error && data && data.length > 0) {
+                        // Redirect to dashboard
+                        window.location.href = 'dashboard.html';
+                    } else {
+                        // Session invalid, clear it
+                        localStorage.removeItem('guef_session');
+                        sessionStorage.removeItem('guef_session');
+                    }
+                } catch (e) {
+                    console.error('Session check error:', e);
+                    localStorage.removeItem('guef_session');
+                    sessionStorage.removeItem('guef_session');
+                }
             }
         }
-    }
-    
-    function showMessage(message, type) {
-        const container = document.getElementById('messageContainer');
-        const messageDiv = document.createElement('div');
-        messageDiv.className = type === 'error' ? 'error-message' : 'success-message';
-        messageDiv.innerHTML = `<i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'}" style="margin-right: 8px;"></i>${message}`;
         
-        container.innerHTML = '';
-        container.appendChild(messageDiv);
+        function showMessage(message, type) {
+            const container = document.getElementById('messageContainer');
+            if (!container) return;
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = type === 'error' ? 'error-message' : 'success-message';
+            messageDiv.innerHTML = `<i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'}" style="margin-right: 8px;"></i>${message}`;
+            
+            container.innerHTML = '';
+            container.appendChild(messageDiv);
+            
+            setTimeout(() => {
+                if (messageDiv.parentElement) {
+                    messageDiv.style.transition = 'opacity 0.5s ease';
+                    messageDiv.style.opacity = '0';
+                    setTimeout(() => {
+                        if (messageDiv.parentElement) {
+                            messageDiv.remove();
+                        }
+                    }, 500);
+                }
+            }, 5000);
+        }
         
-        setTimeout(() => {
-            if (messageDiv.parentElement) {
-                messageDiv.style.transition = 'opacity 0.5s ease';
-                messageDiv.style.opacity = '0';
-                setTimeout(() => {
-                    if (messageDiv.parentElement) {
-                        messageDiv.remove();
-                    }
-                }, 500);
-            }
-        }, 5000);
-    }
-    
-    // Input focus effects
-    document.querySelectorAll('form input').forEach(input => {
-        input.addEventListener('focus', function() {
-            const icon = this.parentElement.querySelector('i');
-            if (icon) icon.style.color = '#1b4332';
+        // Input focus effects
+        document.querySelectorAll('form input').forEach(input => {
+            input.addEventListener('focus', function() {
+                const icon = this.parentElement.querySelector('i');
+                if (icon) icon.style.color = '#1b4332';
+            });
+            
+            input.addEventListener('blur', function() {
+                const icon = this.parentElement.querySelector('i');
+                if (icon) icon.style.color = '#2d6a4f';
+            });
         });
-        
-        input.addEventListener('blur', function() {
-            const icon = this.parentElement.querySelector('i');
-            if (icon) icon.style.color = '#2d6a4f';
-        });
-    });
+    })(); // End of IIFE
 </script>
-
 </body>
 </html>
