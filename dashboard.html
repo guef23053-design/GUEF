@@ -12,10 +12,14 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
+    <!-- Chart.js for Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
+        /* Previous styles remain the same - keeping them concise here */
         * {
             margin: 0;
             padding: 0;
@@ -25,17 +29,21 @@
         :root {
             --primary: #2d6a4f;
             --primary-dark: #1b4332;
+            --primary-light: #40916c;
             --secondary: #74c69d;
-            --accent: #40916c;
+            --accent: #52b788;
             --light: #f8f9fa;
             --dark: #1e1e1e;
             --gray: #6c757d;
+            --gray-light: #e9ecef;
             --white: #ffffff;
             --warning: #f39c12;
             --danger: #e74c3c;
             --success: #27ae60;
             --info: #3498db;
             --sidebar-width: 280px;
+            --header-height: 70px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         body {
@@ -49,7 +57,7 @@
             min-height: 100vh;
         }
 
-        /* ===== SIDEBAR ===== */
+        /* Sidebar Styles */
         .sidebar {
             width: var(--sidebar-width);
             background: linear-gradient(180deg, var(--primary-dark) 0%, var(--primary) 100%);
@@ -57,9 +65,22 @@
             position: fixed;
             height: 100vh;
             overflow-y: auto;
-            transition: transform 0.3s ease;
+            transition: transform var(--transition);
             z-index: 1000;
             box-shadow: 5px 0 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
         }
 
         .sidebar-header {
@@ -116,7 +137,7 @@
             color: rgba(255, 255, 255, 0.8);
             text-decoration: none;
             border-radius: 12px;
-            transition: all 0.3s;
+            transition: var(--transition);
             margin-bottom: 5px;
             cursor: pointer;
         }
@@ -129,6 +150,7 @@
         .menu-item:hover {
             background: rgba(255, 255, 255, 0.1);
             color: var(--white);
+            transform: translateX(5px);
         }
 
         .menu-item.active {
@@ -147,7 +169,7 @@
             font-weight: 600;
         }
 
-        /* ===== MAIN CONTENT ===== */
+        /* Main Content */
         .main-content {
             flex: 1;
             margin-left: var(--sidebar-width);
@@ -156,7 +178,7 @@
             min-height: 100vh;
         }
 
-        /* ===== TOP HEADER ===== */
+        /* Top Header */
         .top-header {
             background: var(--white);
             padding: 15px 30px;
@@ -196,6 +218,29 @@
             gap: 20px;
         }
 
+        /* Search Bar */
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background: var(--light);
+            border-radius: 40px;
+            padding: 8px 16px;
+            gap: 10px;
+        }
+
+        .search-bar i {
+            color: var(--gray);
+        }
+
+        .search-bar input {
+            border: none;
+            background: none;
+            outline: none;
+            font-family: 'Poppins', sans-serif;
+            width: 200px;
+        }
+
+        /* Notifications */
         .notification-bell {
             position: relative;
             cursor: pointer;
@@ -205,7 +250,7 @@
         .notification-bell i {
             font-size: 1.3rem;
             color: var(--gray);
-            transition: color 0.3s;
+            transition: var(--transition);
         }
 
         .notification-bell:hover i {
@@ -231,63 +276,21 @@
             top: 100%;
             right: 0;
             background: var(--white);
-            width: 320px;
+            width: 350px;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
             padding: 15px;
             display: none;
             border: 1px solid rgba(45, 106, 79, 0.1);
+            max-height: 400px;
+            overflow-y: auto;
         }
 
         .notification-bell:hover .notification-dropdown {
             display: block;
         }
 
-        .notification-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            padding: 12px;
-            border-radius: 10px;
-            transition: background 0.3s;
-            border-bottom: 1px solid #eee;
-        }
-
-        .notification-item:last-child {
-            border-bottom: none;
-        }
-
-        .notification-item.unread {
-            background: rgba(45, 106, 79, 0.05);
-        }
-
-        .notification-icon {
-            width: 35px;
-            height: 35px;
-            background: rgba(45, 106, 79, 0.1);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.1rem;
-            color: var(--primary);
-        }
-
-        .notification-content {
-            flex: 1;
-        }
-
-        .notification-content p {
-            font-size: 0.85rem;
-            color: var(--dark);
-            margin-bottom: 3px;
-        }
-
-        .notification-time {
-            font-size: 0.7rem;
-            color: var(--gray);
-        }
-
+        /* User Profile */
         .user-profile {
             display: flex;
             align-items: center;
@@ -295,7 +298,7 @@
             cursor: pointer;
             padding: 5px 10px;
             border-radius: 40px;
-            transition: background 0.3s;
+            transition: var(--transition);
         }
 
         .user-profile:hover {
@@ -315,29 +318,13 @@
             font-size: 1.1rem;
         }
 
-        .user-info {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .user-name {
-            font-weight: 600;
-            color: var(--primary-dark);
-            font-size: 0.95rem;
-        }
-
-        .user-role {
-            font-size: 0.75rem;
-            color: var(--gray);
-        }
-
-        /* ===== DASHBOARD CONTENT ===== */
+        /* Content Wrapper */
         .content-wrapper {
             padding: 30px;
             flex: 1;
         }
 
-        /* Hero Welcome */
+        /* Welcome Card */
         .welcome-card {
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: var(--white);
@@ -345,17 +332,45 @@
             border-radius: 20px;
             margin-bottom: 30px;
             box-shadow: 0 10px 30px rgba(45, 106, 79, 0.25);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+
+        .welcome-card::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -5%;
+            width: 150px;
+            height: 150px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 50%;
         }
 
         .welcome-card h1 {
             font-size: clamp(24px, 5vw, 32px);
             margin-bottom: 10px;
             font-weight: 600;
+            position: relative;
+            z-index: 1;
         }
 
         .welcome-card p {
             font-size: clamp(14px, 3vw, 16px);
             opacity: 0.95;
+            position: relative;
+            z-index: 1;
         }
 
         /* Stats Grid */
@@ -372,8 +387,25 @@
             border-radius: 16px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
             text-align: center;
-            transition: all 0.3s;
+            transition: var(--transition);
             border: 1px solid rgba(45, 106, 79, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(45, 106, 79, 0.05), transparent);
+            transition: left 0.5s;
+        }
+
+        .stat-card:hover::before {
+            left: 100%;
         }
 
         .stat-card:hover {
@@ -393,13 +425,28 @@
             margin-bottom: 5px;
         }
 
-        .stat-label {
-            color: var(--gray);
-            font-size: 0.9rem;
-            font-weight: 500;
+        /* Analytics Section */
+        .analytics-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
         }
 
-        /* Two Column Layout */
+        .analytics-card {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 250px;
+            margin-top: 15px;
+        }
+
+        /* Dashboard Grid */
         .dashboard-grid {
             display: grid;
             grid-template-columns: 1fr 350px;
@@ -413,6 +460,11 @@
             border-radius: 20px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
             overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .profile-card:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
         }
 
         .profile-header {
@@ -420,6 +472,7 @@
             color: var(--white);
             padding: 30px 20px;
             text-align: center;
+            position: relative;
         }
 
         .profile-avatar {
@@ -432,90 +485,17 @@
             justify-content: center;
             margin: 0 auto 15px;
             border: 4px solid var(--white);
+            transition: var(--transition);
+        }
+
+        .profile-card:hover .profile-avatar {
+            transform: scale(1.05);
         }
 
         .profile-avatar span {
             font-size: 2.5rem;
             font-weight: 600;
             color: var(--primary);
-        }
-
-        .profile-header h3 {
-            font-size: 1.3rem;
-            margin-bottom: 5px;
-        }
-
-        .profile-header p {
-            opacity: 0.9;
-            font-size: 0.85rem;
-        }
-
-        .profile-body {
-            padding: 25px;
-        }
-
-        .profile-info-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 12px 0;
-            border-bottom: 1px solid #eee;
-        }
-
-        .profile-info-item:last-child {
-            border-bottom: none;
-        }
-
-        .profile-info-icon {
-            width: 40px;
-            height: 40px;
-            background: rgba(45, 106, 79, 0.08);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--primary);
-            font-size: 1.1rem;
-        }
-
-        .profile-info-content {
-            flex: 1;
-        }
-
-        .profile-info-label {
-            font-size: 0.75rem;
-            color: var(--gray);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .profile-info-value {
-            font-weight: 600;
-            color: var(--primary-dark);
-            font-size: 0.95rem;
-        }
-
-        .edit-profile-btn {
-            display: block;
-            background: var(--primary);
-            color: white;
-            text-align: center;
-            padding: 12px;
-            border-radius: 12px;
-            text-decoration: none;
-            font-weight: 500;
-            margin-top: 15px;
-            transition: all 0.3s;
-            cursor: pointer;
-            border: none;
-            width: 100%;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        .edit-profile-btn:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(45, 106, 79, 0.3);
         }
 
         /* Activity Feed */
@@ -526,162 +506,23 @@
             padding: 20px;
         }
 
-        .activity-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--primary-dark);
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
         .activity-list {
             list-style: none;
+            max-height: 400px;
+            overflow-y: auto;
         }
 
         .activity-item {
             display: flex;
             gap: 15px;
             padding: 15px 0;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid var(--gray-light);
+            transition: var(--transition);
         }
 
-        .activity-item:last-child {
-            border-bottom: none;
-        }
-
-        .activity-icon {
-            width: 40px;
-            height: 40px;
-            background: rgba(45, 106, 79, 0.08);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.1rem;
-            color: var(--primary);
-        }
-
-        .activity-content p {
-            font-size: 0.9rem;
-            color: var(--dark);
-            margin-bottom: 5px;
-        }
-
-        .activity-time {
-            font-size: 0.75rem;
-            color: var(--gray);
-        }
-
-        /* Gallery Section */
-        .gallery-section {
-            background: var(--white);
-            border-radius: 20px;
-            padding: 25px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
-        }
-
-        .section-title {
-            font-size: 1.3rem;
-            font-weight: 600;
-            color: var(--primary-dark);
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .gallery-container {
-            position: relative;
-            overflow: hidden;
-            border-radius: 15px;
-        }
-
-        .gallery-track {
-            display: flex;
-            gap: 20px;
-            overflow-x: auto;
-            scroll-snap-type: x mandatory;
-            scroll-behavior: smooth;
-            padding: 10px 5px 20px;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: thin;
-        }
-
-        .gallery-track::-webkit-scrollbar {
-            height: 6px;
-        }
-
-        .gallery-track::-webkit-scrollbar-track {
-            background: #e0e0e0;
-            border-radius: 10px;
-        }
-
-        .gallery-track::-webkit-scrollbar-thumb {
-            background: var(--primary);
-            border-radius: 10px;
-        }
-
-        .gallery-item {
-            flex: 0 0 280px;
-            scroll-snap-align: start;
-            position: relative;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s;
-            height: 200px;
-        }
-
-        .gallery-item:hover {
-            transform: translateY(-5px);
-        }
-
-        .gallery-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.3s;
-        }
-
-        .gallery-item:hover img {
-            transform: scale(1.05);
-        }
-
-        .gallery-caption {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
-            color: white;
-            padding: 30px 15px 15px;
-            font-weight: 500;
-            font-size: 0.9rem;
-        }
-
-        .gallery-nav {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            margin-top: 15px;
-        }
-
-        .nav-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #cbd5e0;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .nav-dot.active {
-            background: var(--primary);
-            width: 24px;
-            border-radius: 20px;
+        .activity-item:hover {
+            background: var(--light);
+            padding-left: 10px;
         }
 
         /* Quick Actions */
@@ -706,7 +547,7 @@
             text-decoration: none;
             font-weight: 500;
             font-size: 0.95rem;
-            transition: all 0.3s;
+            transition: var(--transition);
             display: inline-flex;
             align-items: center;
             gap: 8px;
@@ -721,130 +562,52 @@
             box-shadow: 0 5px 15px rgba(45, 106, 79, 0.25);
         }
 
-        .action-btn.primary {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            color: white;
-            border: none;
+        /* Toast Notification */
+        .toast-notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 10000;
+            animation: slideInRight 0.3s ease;
+            border-left: 4px solid var(--success);
         }
 
-        .action-btn.primary:hover {
-            box-shadow: 0 8px 20px rgba(45, 106, 79, 0.35);
-        }
+        .toast-notification.success { border-left-color: var(--success); }
+        .toast-notification.error { border-left-color: var(--danger); }
+        .toast-notification.warning { border-left-color: var(--warning); }
+        .toast-notification.info { border-left-color: var(--info); }
 
-        /* Programs Grid */
-        .programs-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .program-card {
-            background: var(--light);
-            padding: 20px;
-            border-radius: 15px;
-            border-left: 4px solid var(--primary);
-            transition: all 0.3s;
-        }
-
-        .program-card:hover {
-            background: var(--white);
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-            transform: translateX(5px);
-        }
-
-        .program-card h4 {
-            color: var(--primary-dark);
-            margin-bottom: 10px;
-            font-size: 1rem;
-            font-weight: 600;
-        }
-
-        .program-card p {
-            color: var(--gray);
-            font-size: 0.85rem;
-            line-height: 1.6;
-        }
-
-        /* Footer */
-        .dashboard-footer {
-            background: var(--white);
-            padding: 20px 30px;
-            text-align: center;
-            color: var(--gray);
-            font-size: 0.85rem;
-            border-top: 1px solid rgba(0, 0, 0, 0.05);
-            margin-top: auto;
-        }
-
-        /* Mobile Responsive */
-        @media (max-width: 1024px) {
-            .dashboard-grid {
-                grid-template-columns: 1fr;
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
             }
-        }
-
-        @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-            }
-
-            .sidebar.active {
+            to {
                 transform: translateX(0);
-            }
-
-            .main-content {
-                margin-left: 0;
-            }
-
-            .mobile-menu-toggle {
-                display: block;
-            }
-
-            .top-header {
-                padding: 15px 20px;
-            }
-
-            .content-wrapper {
-                padding: 20px 15px;
-            }
-
-            .user-info {
-                display: none;
-            }
-
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .gallery-item {
-                flex: 0 0 85%;
-            }
-
-            .action-buttons {
-                flex-direction: column;
-            }
-
-            .action-btn {
-                justify-content: center;
+                opacity: 1;
             }
         }
 
-        @media (max-width: 480px) {
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .page-title {
-                font-size: 1rem;
-            }
-
-            .welcome-card {
-                padding: 25px 20px;
-            }
+        /* Loading Skeleton */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
         }
 
-        /* Edit Profile Modal */
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -856,10 +619,17 @@
             z-index: 9999;
             align-items: center;
             justify-content: center;
+            backdrop-filter: blur(5px);
         }
 
         .modal.active {
             display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         .modal-content {
@@ -870,101 +640,75 @@
             width: 90%;
             max-height: 80vh;
             overflow-y: auto;
+            animation: slideInUp 0.3s ease;
         }
 
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
+        @keyframes slideInUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
 
-        .modal-header h3 {
-            color: var(--primary-dark);
-            font-size: 1.3rem;
+        /* Dark Mode Support */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --light: #2d2d2d;
+                --white: #1e1e1e;
+                --dark: #ffffff;
+                --gray-light: #333;
+            }
+            
+            body {
+                background: linear-gradient(135deg, #1a2a22 0%, #0f1f17 100%);
+            }
         }
 
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: var(--gray);
+        /* Mobile Responsive */
+        @media (max-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            .analytics-section {
+                grid-template-columns: 1fr;
+            }
         }
 
-        .form-group {
-            margin-bottom: 20px;
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .mobile-menu-toggle {
+                display: block;
+            }
+            .search-bar {
+                display: none;
+            }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
 
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: var(--primary-dark);
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            font-size: 0.95rem;
-            font-family: 'Poppins', sans-serif;
-            transition: border-color 0.3s;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        .form-actions {
-            display: flex;
-            gap: 15px;
-            margin-top: 25px;
-        }
-
-        .btn {
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s;
-            border: none;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-dark);
-        }
-
-        .btn-secondary {
-            background: var(--light);
-            color: var(--gray);
-        }
-
-        .btn-secondary:hover {
-            background: #e0e0e0;
-        }
-
-        .loading-spinner {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 0.8s linear infinite;
-            margin-right: 8px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .action-buttons {
+                flex-direction: column;
+            }
+            .action-btn {
+                justify-content: center;
+            }
         }
     </style>
 </head>
@@ -983,45 +727,50 @@
         <div class="sidebar-menu">
             <div class="menu-section">
                 <div class="menu-section-title">Main Menu</div>
-                <a href="dashboard.html" class="menu-item active">
+                <a href="#" class="menu-item active" data-page="dashboard">
                     <i class="fas fa-home"></i>
                     <span>Dashboard</span>
                 </a>
-                <a href="#" class="menu-item" onclick="scrollToProfile()">
+                <a href="#" class="menu-item" data-page="profile">
                     <i class="fas fa-user"></i>
-                    <span>Profile</span>
+                    <span>My Profile</span>
                 </a>
-                <a href="#" class="menu-item">
-                    <i class="fas fa-chart-bar"></i>
+                <a href="#" class="menu-item" data-page="analytics">
+                    <i class="fas fa-chart-line"></i>
                     <span>Analytics</span>
+                </a>
+                <a href="#" class="menu-item" data-page="projects">
+                    <i class="fas fa-seedling"></i>
+                    <span>My Projects</span>
+                    <span class="badge" id="projectBadge">0</span>
                 </a>
             </div>
             
             <div class="menu-section">
-                <div class="menu-section-title">Programs</div>
-                <a href="#" class="menu-item">
-                    <i class="fas fa-seedling"></i>
-                    <span>My Projects</span>
-                </a>
-                <a href="#" class="menu-item">
-                    <i class="fas fa-calendar"></i>
+                <div class="menu-section-title">Community</div>
+                <a href="#" class="menu-item" data-page="events">
+                    <i class="fas fa-calendar-alt"></i>
                     <span>Events</span>
                 </a>
-                <a href="#" class="menu-item">
-                    <i class="fas fa-users"></i>
-                    <span>Community</span>
+                <a href="#" class="menu-item" data-page="forum">
+                    <i class="fas fa-comments"></i>
+                    <span>Forum</span>
+                </a>
+                <a href="#" class="menu-item" data-page="resources">
+                    <i class="fas fa-book"></i>
+                    <span>Resources</span>
                 </a>
             </div>
             
             <div class="menu-section">
                 <div class="menu-section-title">Settings</div>
                 <a href="#" class="menu-item" onclick="openEditProfileModal()">
-                    <i class="fas fa-cog"></i>
-                    <span>Settings</span>
+                    <i class="fas fa-user-edit"></i>
+                    <span>Edit Profile</span>
                 </a>
-                <a href="#" class="menu-item">
-                    <i class="fas fa-question-circle"></i>
-                    <span>Help & Support</span>
+                <a href="#" class="menu-item" onclick="openChangePasswordModal()">
+                    <i class="fas fa-key"></i>
+                    <span>Change Password</span>
                 </a>
                 <a href="#" class="menu-item" id="adminPanelLink" style="display: none;">
                     <i class="fas fa-shield-alt"></i>
@@ -1044,23 +793,28 @@
                 <button class="mobile-menu-toggle" id="menuToggle">
                     <i class="fas fa-bars"></i>
                 </button>
-                <h2 class="page-title">Dashboard</h2>
+                <h2 class="page-title" id="pageTitle">Dashboard</h2>
             </div>
             
             <div class="header-right">
+                <!-- Search Bar -->
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search..." id="globalSearch">
+                </div>
+                
                 <!-- Notifications -->
                 <div class="notification-bell">
                     <i class="far fa-bell"></i>
-                    <span class="notification-badge" id="notificationBadge">3</span>
+                    <span class="notification-badge" id="notificationBadge">0</span>
                     <div class="notification-dropdown" id="notificationDropdown">
                         <h4 style="margin-bottom: 10px; color: var(--primary-dark);">Notifications</h4>
                         <div id="notificationsList"></div>
-                        <a href="#" style="display: block; text-align: center; padding: 10px; color: var(--primary); text-decoration: none; font-size: 0.85rem;">View All</a>
                     </div>
                 </div>
                 
                 <!-- User Profile -->
-                <div class="user-profile">
+                <div class="user-profile" id="userProfileBtn">
                     <div class="user-avatar" id="userAvatar">U</div>
                     <div class="user-info">
                         <span class="user-name" id="userName">User</span>
@@ -1070,197 +824,9 @@
             </div>
         </header>
 
-        <!-- Content Wrapper -->
-        <main class="content-wrapper">
-            
-            <!-- Welcome Card -->
-            <div class="welcome-card" id="welcomeCard">
-                <h1>Welcome Back, <span id="welcomeName">Guest</span>! 👋</h1>
-                <p>Together, we're empowering communities and building sustainable futures across Eastern regions.</p>
-            </div>
-
-            <!-- Statistics -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon">🌱</div>
-                    <div class="stat-number" id="statProjects">50+</div>
-                    <div class="stat-label">Active Projects</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">👥</div>
-                    <div class="stat-number" id="statUsers">0+</div>
-                    <div class="stat-label">Community Members</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">🤝</div>
-                    <div class="stat-number" id="statPartners">25+</div>
-                    <div class="stat-label">Partners</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">🌍</div>
-                    <div class="stat-number" id="statRegions">15</div>
-                    <div class="stat-label">Regions</div>
-                </div>
-            </div>
-
-            <!-- Profile & Activity Grid -->
-            <div class="dashboard-grid" id="profileSection">
-                
-                <!-- Profile Card -->
-                <div class="profile-card">
-                    <div class="profile-header">
-                        <div class="profile-avatar">
-                            <span id="profileInitial">U</span>
-                        </div>
-                        <h3 id="profileName">User Name</h3>
-                        <p id="memberSince">Member since 2024</p>
-                    </div>
-                    <div class="profile-body">
-                        <div class="profile-info-item">
-                            <div class="profile-info-icon">
-                                <i class="fas fa-user"></i>
-                            </div>
-                            <div class="profile-info-content">
-                                <div class="profile-info-label">Username</div>
-                                <div class="profile-info-value" id="profileUsername">@username</div>
-                            </div>
-                        </div>
-                        <div class="profile-info-item">
-                            <div class="profile-info-icon">
-                                <i class="fas fa-envelope"></i>
-                            </div>
-                            <div class="profile-info-content">
-                                <div class="profile-info-label">Email</div>
-                                <div class="profile-info-value" id="profileEmail">email@example.com</div>
-                            </div>
-                        </div>
-                        <div class="profile-info-item">
-                            <div class="profile-info-icon">
-                                <i class="fas fa-phone"></i>
-                            </div>
-                            <div class="profile-info-content">
-                                <div class="profile-info-label">Phone</div>
-                                <div class="profile-info-value" id="profilePhone">N/A</div>
-                            </div>
-                        </div>
-                        <div class="profile-info-item">
-                            <div class="profile-info-icon">
-                                <i class="fas fa-id-card"></i>
-                            </div>
-                            <div class="profile-info-content">
-                                <div class="profile-info-label">National ID</div>
-                                <div class="profile-info-value" id="profileNationalId">N/A</div>
-                            </div>
-                        </div>
-                        <div class="profile-info-item">
-                            <div class="profile-info-icon">
-                                <i class="fas fa-map-marker-alt"></i>
-                            </div>
-                            <div class="profile-info-content">
-                                <div class="profile-info-label">County</div>
-                                <div class="profile-info-value" id="profileCounty">N/A</div>
-                            </div>
-                        </div>
-                        <div class="profile-info-item">
-                            <div class="profile-info-icon">
-                                <i class="fas fa-users"></i>
-                            </div>
-                            <div class="profile-info-content">
-                                <div class="profile-info-label">Group</div>
-                                <div class="profile-info-value" id="profileGroup">Not specified</div>
-                            </div>
-                        </div>
-                        
-                        <button class="edit-profile-btn" onclick="openEditProfileModal()">
-                            <i class="fas fa-edit"></i> Edit Profile
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Activity Feed -->
-                <div class="activity-card">
-                    <div class="activity-title">
-                        <i class="fas fa-clock"></i>
-                        Recent Activity
-                    </div>
-                    <ul class="activity-list" id="activityList">
-                        <li class="activity-item">
-                            <div class="activity-icon">📊</div>
-                            <div class="activity-content">
-                                <p>Welcome to your dashboard! Explore programs and resources.</p>
-                                <span class="activity-time">Just now</span>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Gallery Section -->
-            <div class="gallery-section">
-                <h2 class="section-title">
-                    <i class="fas fa-images" style="color: var(--primary);"></i>
-                    Our Impact in Pictures
-                </h2>
-                
-                <div class="gallery-container">
-                    <div class="gallery-track" id="galleryTrack"></div>
-                    <div class="gallery-nav" id="galleryNav"></div>
-                </div>
-            </div>
-
-            <!-- Programs Section -->
-            <div class="gallery-section">
-                <h2 class="section-title">
-                    <i class="fas fa-bullseye" style="color: var(--primary);"></i>
-                    Our Focus Areas
-                </h2>
-                
-                <div class="programs-grid">
-                    <div class="program-card">
-                        <h4>🌱 Sustainable Livelihoods</h4>
-                        <p>Supporting agriculture, green technology, and community enterprises for lasting economic growth.</p>
-                    </div>
-                    <div class="program-card">
-                        <h4>🎓 Skills Development</h4>
-                        <p>Vocational training, financial literacy, and entrepreneurship programs to build capacity.</p>
-                    </div>
-                    <div class="program-card">
-                        <h4>💼 MSME Support</h4>
-                        <p>Grants, microfinance, and business incubation services for small enterprises.</p>
-                    </div>
-                    <div class="program-card">
-                        <h4>🌍 Market Linkages</h4>
-                        <p>Connecting local producers to regional and global markets for sustainable growth.</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Quick Actions -->
-            <div class="quick-actions">
-                <h2 class="section-title">
-                    <i class="fas fa-bolt" style="color: var(--primary);"></i>
-                    Quick Actions
-                </h2>
-                
-                <div class="action-buttons">
-                    <a href="#" class="action-btn primary">
-                        <i class="fas fa-chart-line"></i> View Reports
-                    </a>
-                    <button class="action-btn" onclick="openEditProfileModal()">
-                        <i class="fas fa-user-edit"></i> Update Profile
-                    </button>
-                    <a href="#" class="action-btn">
-                        <i class="fas fa-headset"></i> Contact Support
-                    </a>
-                    <a href="#" class="action-btn">
-                        <i class="fas fa-book"></i> Resources
-                    </a>
-                    <a href="#" class="action-btn">
-                        <i class="fas fa-calendar-alt"></i> View Events
-                    </a>
-                </div>
-            </div>
-            
+        <!-- Content Wrapper - Dynamic Content -->
+        <main class="content-wrapper" id="mainContent">
+            <!-- Content will be loaded dynamically -->
         </main>
 
         <!-- Footer -->
@@ -1275,10 +841,9 @@
 <div class="modal" id="editProfileModal">
     <div class="modal-content">
         <div class="modal-header">
-            <h3><i class="fas fa-user-edit" style="margin-right: 10px; color: var(--primary);"></i>Edit Profile</h3>
+            <h3><i class="fas fa-user-edit"></i> Edit Profile</h3>
             <button class="modal-close" onclick="closeEditProfileModal()">&times;</button>
         </div>
-        
         <form id="editProfileForm">
             <div class="form-group">
                 <label>Full Name</label>
@@ -1300,17 +865,45 @@
                 <label>Group Name</label>
                 <input type="text" name="group_name" id="editGroupName">
             </div>
-            
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary" id="saveProfileBtn">Save Changes</button>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
                 <button type="button" class="btn btn-secondary" onclick="closeEditProfileModal()">Cancel</button>
             </div>
         </form>
     </div>
 </div>
 
+<!-- Change Password Modal -->
+<div class="modal" id="changePasswordModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-key"></i> Change Password</h3>
+            <button class="modal-close" onclick="closeChangePasswordModal()">&times;</button>
+        </div>
+        <form id="changePasswordForm">
+            <div class="form-group">
+                <label>Current Password</label>
+                <input type="password" id="currentPassword" required>
+            </div>
+            <div class="form-group">
+                <label>New Password</label>
+                <input type="password" id="newPassword" required>
+                <small style="color: var(--gray);">Minimum 6 characters</small>
+            </div>
+            <div class="form-group">
+                <label>Confirm New Password</label>
+                <input type="password" id="confirmPassword" required>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Change Password</button>
+                <button type="button" class="btn btn-secondary" onclick="closeChangePasswordModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
-    // Wrap everything in IIFE to avoid conflicts
+    // IIFE to avoid conflicts
     (function() {
         // Supabase configuration
         const SUPABASE_URL = 'https://itcogcebxavnrcfymfxc.supabase.co';
@@ -1334,27 +927,206 @@
             return;
         }
         
-        // Gallery images
-        const galleryImages = [
-            { src: '1.jpg', alt: 'Community Outreach', caption: 'Community Outreach Programs' },
-            { src: '2.jpg', alt: 'Skills Workshop', caption: 'Vocational Training Workshops' },
-            { src: '3.jpg', alt: 'Women Empowerment', caption: 'Women Empowerment Initiatives' },
-            { src: '4.jpg', alt: 'Agriculture Project', caption: 'Sustainable Agriculture Projects' },
-            { src: '6.jpg', alt: 'Youth Training', caption: 'Youth Skills Development' },
-            { src: '7.jpg', alt: 'Market Linkage', caption: 'Market Linkage Programs' },
-            { src: '8.jpg', alt: 'Community Meeting', caption: 'Community Engagement' },
-            { src: '9.jpg', alt: 'Green Technology', caption: 'Green Technology Initiatives' }
-        ];
+        // Global variables
+        let activityChart = null;
+        let projectsChart = null;
         
-        // Notifications
-        const notifications = [
-            { message: 'Welcome to GUEF! Complete your profile.', time: 'Just now', icon: '👋', read: false },
-            { message: 'New program: Sustainable Farming Workshop', time: '2 hours ago', icon: '🌱', read: false },
-            { message: 'Your account has been verified', time: '1 day ago', icon: '✅', read: true }
-        ];
+        // ========== DASHBOARD CONTENT ==========
         
-        // Load user data from database
-        async function loadUserData() {
+        function renderDashboard() {
+            const container = document.getElementById('mainContent');
+            container.innerHTML = `
+                <!-- Welcome Card -->
+                <div class="welcome-card">
+                    <h1>Welcome Back, <span id="welcomeName">${escapeHtml(currentUser.full_name || currentUser.username)}</span>! 👋</h1>
+                    <p>Together, we're empowering communities and building sustainable futures across Eastern regions.</p>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">🌱</div>
+                        <div class="stat-number" id="statProjects">--</div>
+                        <div class="stat-label">Active Projects</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-number" id="statUsers">--</div>
+                        <div class="stat-label">Community Members</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-number" id="statApplications">--</div>
+                        <div class="stat-label">Applications</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🌍</div>
+                        <div class="stat-number" id="statCounties">--</div>
+                        <div class="stat-label">Counties</div>
+                    </div>
+                </div>
+
+                <!-- Analytics Section -->
+                <div class="analytics-section">
+                    <div class="analytics-card">
+                        <h3><i class="fas fa-chart-line"></i> Registration Trends</h3>
+                        <div class="chart-container">
+                            <canvas id="activityChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="analytics-card">
+                        <h3><i class="fas fa-chart-pie"></i> Projects by Category</h3>
+                        <div class="chart-container">
+                            <canvas id="projectsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profile & Activity Grid -->
+                <div class="dashboard-grid">
+                    <!-- Profile Card -->
+                    <div class="profile-card">
+                        <div class="profile-header">
+                            <div class="profile-avatar">
+                                <span id="profileInitial">${(currentUser.full_name || currentUser.username).charAt(0).toUpperCase()}</span>
+                            </div>
+                            <h3 id="profileName">${escapeHtml(currentUser.full_name || currentUser.username)}</h3>
+                            <p id="memberSince">Member since loading...</p>
+                        </div>
+                        <div class="profile-body">
+                            <div class="profile-info-item">
+                                <div class="profile-info-icon"><i class="fas fa-user"></i></div>
+                                <div class="profile-info-content">
+                                    <div class="profile-info-label">Username</div>
+                                    <div class="profile-info-value" id="profileUsername">@${escapeHtml(currentUser.username)}</div>
+                                </div>
+                            </div>
+                            <div class="profile-info-item">
+                                <div class="profile-info-icon"><i class="fas fa-envelope"></i></div>
+                                <div class="profile-info-content">
+                                    <div class="profile-info-label">Email</div>
+                                    <div class="profile-info-value" id="profileEmail">${escapeHtml(currentUser.email || 'N/A')}</div>
+                                </div>
+                            </div>
+                            <div class="profile-info-item">
+                                <div class="profile-info-icon"><i class="fas fa-phone"></i></div>
+                                <div class="profile-info-content">
+                                    <div class="profile-info-label">Phone</div>
+                                    <div class="profile-info-value" id="profilePhone">${escapeHtml(currentUser.phone || 'N/A')}</div>
+                                </div>
+                            </div>
+                            <div class="profile-info-item">
+                                <div class="profile-info-icon"><i class="fas fa-map-marker-alt"></i></div>
+                                <div class="profile-info-content">
+                                    <div class="profile-info-label">County</div>
+                                    <div class="profile-info-value" id="profileCounty">${escapeHtml(currentUser.county || 'N/A')}</div>
+                                </div>
+                            </div>
+                            <button class="edit-profile-btn" onclick="openEditProfileModal()">
+                                <i class="fas fa-edit"></i> Edit Profile
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Activity Feed -->
+                    <div class="activity-card">
+                        <div class="activity-title">
+                            <i class="fas fa-clock"></i>
+                            Recent Activity
+                        </div>
+                        <ul class="activity-list" id="activityList">
+                            <li class="activity-item">
+                                <div class="activity-icon">📊</div>
+                                <div class="activity-content">
+                                    <p>Loading activities...</p>
+                                    <span class="activity-time">Just now</span>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <h2 class="section-title">
+                        <i class="fas fa-bolt"></i>
+                        Quick Actions
+                    </h2>
+                    <div class="action-buttons">
+                        <button class="action-btn primary" onclick="window.location.href='programs.html'">
+                            <i class="fas fa-seedling"></i> Browse Programs
+                        </button>
+                        <button class="action-btn" onclick="openEditProfileModal()">
+                            <i class="fas fa-user-edit"></i> Update Profile
+                        </button>
+                        <button class="action-btn" onclick="showResources()">
+                            <i class="fas fa-book"></i> Resources
+                        </button>
+                        <button class="action-btn" onclick="window.location.href='events.html'">
+                            <i class="fas fa-calendar-alt"></i> View Events
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // Load data after rendering
+            setTimeout(() => {
+                loadStatistics();
+                loadUserProfile();
+                loadRecentActivities();
+                initCharts();
+            }, 100);
+        }
+        
+        // ========== LOAD FUNCTIONS ==========
+        
+        async function loadStatistics() {
+            try {
+                // Get total users
+                const { count: userCount } = await supabaseClient
+                    .from('users')
+                    .select('*', { count: 'exact', head: true });
+                
+                // Get projects count
+                const { count: projectCount } = await supabaseClient
+                    .from('projects')
+                    .select('*', { count: 'exact', head: true });
+                
+                // Get applications count for current user
+                const { count: appCount } = await supabaseClient
+                    .from('applications')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('user_id', currentUser.user_id);
+                
+                // Get unique counties
+                const { data: counties } = await supabaseClient
+                    .from('users')
+                    .select('county')
+                    .not('county', 'is', null);
+                
+                const uniqueCounties = counties ? [...new Set(counties.map(c => c.county).filter(c => c))].length : 0;
+                
+                // Update stats
+                const statProjects = document.getElementById('statProjects');
+                const statUsers = document.getElementById('statUsers');
+                const statApplications = document.getElementById('statApplications');
+                const statCounties = document.getElementById('statCounties');
+                
+                if (statProjects) statProjects.textContent = (projectCount || 0) + '+';
+                if (statUsers) statUsers.textContent = (userCount || 0).toLocaleString() + '+';
+                if (statApplications) statApplications.textContent = (appCount || 0);
+                if (statCounties) statCounties.textContent = uniqueCounties;
+                
+                // Update badge
+                const projectBadge = document.getElementById('projectBadge');
+                if (projectBadge) projectBadge.textContent = projectCount || 0;
+                
+            } catch (error) {
+                console.error('Error loading statistics:', error);
+            }
+        }
+        
+        async function loadUserProfile() {
             try {
                 const { data, error } = await supabaseClient
                     .from('users')
@@ -1367,68 +1139,31 @@
                 if (data) {
                     currentUser = { ...currentUser, ...data };
                     
-                    // Update UI
-                    document.getElementById('welcomeName').textContent = data.full_name || data.username;
-                    document.getElementById('userName').textContent = data.username;
-                    document.getElementById('userAvatar').textContent = (data.full_name || data.username).charAt(0).toUpperCase();
-                    document.getElementById('userRole').textContent = data.role === 'admin' ? 'Administrator' : 'Member';
-                    document.getElementById('profileInitial').textContent = (data.full_name || data.username).charAt(0).toUpperCase();
-                    document.getElementById('profileName').textContent = data.full_name;
-                    document.getElementById('profileUsername').textContent = '@' + data.username;
-                    document.getElementById('profileEmail').textContent = data.email;
-                    document.getElementById('profilePhone').textContent = data.phone || 'N/A';
-                    document.getElementById('profileNationalId').textContent = data.national_id || 'N/A';
-                    document.getElementById('profileCounty').textContent = data.county || 'N/A';
-                    document.getElementById('profileGroup').textContent = data.group_name || 'Not specified';
-                    
-                    const memberDate = data.created_at ? new Date(data.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : '2024';
-                    document.getElementById('memberSince').textContent = `Member since ${memberDate}`;
-                    
-                    // Show admin panel link if admin
-                    if (data.role === 'admin') {
-                        document.getElementById('adminPanelLink').style.display = 'flex';
+                    // Update profile display
+                    const memberSinceElem = document.getElementById('memberSince');
+                    if (memberSinceElem && data.created_at) {
+                        memberSinceElem.textContent = `Member since ${new Date(data.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`;
                     }
                     
-                    // Fill edit form
-                    document.getElementById('editFullName').value = data.full_name || '';
-                    document.getElementById('editEmail').value = data.email || '';
-                    document.getElementById('editPhone').value = data.phone || '';
-                    document.getElementById('editCounty').value = data.county || '';
-                    document.getElementById('editGroupName').value = data.group_name || '';
+                    const profileEmail = document.getElementById('profileEmail');
+                    const profilePhone = document.getElementById('profilePhone');
+                    const profileCounty = document.getElementById('profileCounty');
+                    
+                    if (profileEmail) profileEmail.textContent = data.email || 'N/A';
+                    if (profilePhone) profilePhone.textContent = data.phone || 'N/A';
+                    if (profileCounty) profileCounty.textContent = data.county || 'N/A';
+                    
+                    // Show admin panel if admin
+                    if (data.role === 'admin') {
+                        const adminLink = document.getElementById('adminPanelLink');
+                        if (adminLink) adminLink.style.display = 'flex';
+                    }
                 }
             } catch (error) {
-                console.error('Error loading user data:', error);
+                console.error('Error loading profile:', error);
             }
         }
         
-        // Load statistics
-        async function loadStatistics() {
-            try {
-                // Get total users
-                const { count: userCount, error: userError } = await supabaseClient
-                    .from('users')
-                    .select('*', { count: 'exact', head: true });
-                
-                if (!userError) {
-                    document.getElementById('statUsers').textContent = (userCount || 0).toLocaleString() + '+';
-                }
-                
-                // Get unique counties
-                const { data: counties, error: countyError } = await supabaseClient
-                    .from('users')
-                    .select('county')
-                    .not('county', 'is', null);
-                
-                if (!countyError && counties) {
-                    const uniqueCounties = [...new Set(counties.map(c => c.county).filter(c => c))];
-                    document.getElementById('statRegions').textContent = uniqueCounties.length || 15;
-                }
-            } catch (error) {
-                console.error('Error loading statistics:', error);
-            }
-        }
-        
-        // Load recent activities
         async function loadRecentActivities() {
             try {
                 const { data, error } = await supabaseClient
@@ -1437,112 +1172,170 @@
                     .order('id', { ascending: false })
                     .limit(5);
                 
-                if (!error && data && data.length > 0) {
-                    const activityList = document.getElementById('activityList');
-                    activityList.innerHTML = '';
-                    
-                    data.forEach(user => {
-                        const li = document.createElement('li');
-                        li.className = 'activity-item';
-                        li.innerHTML = `
-                            <div class="activity-icon">👤</div>
+                const activityList = document.getElementById('activityList');
+                if (!activityList) return;
+                
+                if (error || !data || data.length === 0) {
+                    activityList.innerHTML = `
+                        <li class="activity-item">
+                            <div class="activity-icon">📊</div>
                             <div class="activity-content">
-                                <p><strong>${escapeHtml(user.full_name)}</strong> joined from ${escapeHtml(user.county || 'Unknown')}</p>
-                                <span class="activity-time">${user.created_at ? new Date(user.created_at).toLocaleDateString() : 'Recently'}</span>
+                                <p>No recent activities</p>
+                                <span class="activity-time">Just now</span>
                             </div>
-                        `;
-                        activityList.appendChild(li);
-                    });
+                        </li>
+                    `;
+                    return;
                 }
+                
+                activityList.innerHTML = data.map(user => `
+                    <li class="activity-item">
+                        <div class="activity-icon">👤</div>
+                        <div class="activity-content">
+                            <p><strong>${escapeHtml(user.full_name)}</strong> joined from ${escapeHtml(user.county || 'Unknown')}</p>
+                            <span class="activity-time">${user.created_at ? formatDate(user.created_at) : 'Recently'}</span>
+                        </div>
+                    </li>
+                `).join('');
+                
             } catch (error) {
                 console.error('Error loading activities:', error);
             }
         }
         
-        // Load notifications
+        // ========== CHARTS ==========
+        
+        async function initCharts() {
+            try {
+                // Get registration data by month
+                const { data: users } = await supabaseClient
+                    .from('users')
+                    .select('created_at')
+                    .order('created_at', { ascending: true });
+                
+                if (users) {
+                    const monthlyData = getMonthlyData(users);
+                    
+                    const ctx = document.getElementById('activityChart')?.getContext('2d');
+                    if (ctx) {
+                        if (activityChart) activityChart.destroy();
+                        activityChart = new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels: monthlyData.labels,
+                                datasets: [{
+                                    label: 'New Registrations',
+                                    data: monthlyData.counts,
+                                    borderColor: '#2d6a4f',
+                                    backgroundColor: 'rgba(45, 106, 79, 0.1)',
+                                    tension: 0.4,
+                                    fill: true
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: { position: 'bottom' }
+                                }
+                            }
+                        });
+                    }
+                }
+                
+                // Projects chart
+                const { data: projects } = await supabaseClient
+                    .from('projects')
+                    .select('category');
+                
+                if (projects) {
+                    const categoryCounts = {};
+                    projects.forEach(p => {
+                        if (p.category) {
+                            categoryCounts[p.category] = (categoryCounts[p.category] || 0) + 1;
+                        }
+                    });
+                    
+                    const ctx2 = document.getElementById('projectsChart')?.getContext('2d');
+                    if (ctx2) {
+                        if (projectsChart) projectsChart.destroy();
+                        projectsChart = new Chart(ctx2, {
+                            type: 'doughnut',
+                            data: {
+                                labels: Object.keys(categoryCounts),
+                                datasets: [{
+                                    data: Object.values(categoryCounts),
+                                    backgroundColor: ['#2d6a4f', '#40916c', '#52b788', '#74c69d', '#95d5b2']
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: { position: 'bottom' }
+                                }
+                            }
+                        });
+                    }
+                }
+                
+            } catch (error) {
+                console.error('Error initializing charts:', error);
+            }
+        }
+        
+        function getMonthlyData(users) {
+            const months = {};
+            users.forEach(user => {
+                if (user.created_at) {
+                    const date = new Date(user.created_at);
+                    const key = `${date.getFullYear()}-${date.getMonth() + 1}`;
+                    months[key] = (months[key] || 0) + 1;
+                }
+            });
+            
+            const sorted = Object.keys(months).sort();
+            return {
+                labels: sorted.map(k => {
+                    const [year, month] = k.split('-');
+                    return new Date(year, month - 1).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+                }),
+                counts: sorted.map(k => months[k])
+            };
+        }
+        
+        // ========== NOTIFICATIONS ==========
+        
         function loadNotifications() {
-            const notificationsList = document.getElementById('notificationsList');
-            notificationsList.innerHTML = '';
+            const notifications = [
+                { message: 'Welcome to GUEF! Complete your profile.', time: 'Just now', icon: '👋', read: false },
+                { message: 'New program: Sustainable Farming Workshop', time: '2 hours ago', icon: '🌱', read: false },
+                { message: 'Your profile is 80% complete', time: '1 day ago', icon: '📊', read: true }
+            ];
             
-            notifications.forEach(notif => {
-                const div = document.createElement('div');
-                div.className = `notification-item ${!notif.read ? 'unread' : ''}`;
-                div.innerHTML = `
-                    <div class="notification-icon">${notif.icon}</div>
-                    <div class="notification-content">
-                        <p>${escapeHtml(notif.message)}</p>
-                        <span class="notification-time">${escapeHtml(notif.time)}</span>
+            const container = document.getElementById('notificationsList');
+            if (container) {
+                container.innerHTML = notifications.map(notif => `
+                    <div class="notification-item ${!notif.read ? 'unread' : ''}">
+                        <div class="notification-icon">${notif.icon}</div>
+                        <div class="notification-content">
+                            <p>${escapeHtml(notif.message)}</p>
+                            <span class="notification-time">${escapeHtml(notif.time)}</span>
+                        </div>
                     </div>
-                `;
-                notificationsList.appendChild(div);
-            });
-            
-            const unreadCount = notifications.filter(n => !n.read).length;
-            document.getElementById('notificationBadge').textContent = unreadCount;
-            if (unreadCount === 0) {
-                document.getElementById('notificationBadge').style.display = 'none';
-            } else {
-                document.getElementById('notificationBadge').style.display = 'block';
+                `).join('');
+                
+                const unreadCount = notifications.filter(n => !n.read).length;
+                const badge = document.getElementById('notificationBadge');
+                if (badge) {
+                    badge.textContent = unreadCount;
+                    badge.style.display = unreadCount > 0 ? 'block' : 'none';
+                }
             }
         }
         
-        // Load gallery
-        function loadGallery() {
-            const galleryTrack = document.getElementById('galleryTrack');
-            galleryTrack.innerHTML = '';
-            
-            galleryImages.forEach(image => {
-                const div = document.createElement('div');
-                div.className = 'gallery-item';
-                div.innerHTML = `
-                    <img src="${escapeHtml(image.src)}" 
-                         alt="${escapeHtml(image.alt)}"
-                         loading="lazy"
-                         onerror="this.src='https://via.placeholder.com/400x300/2d6a4f/ffffff?text=GUEF+Impact'">
-                    <div class="gallery-caption">${escapeHtml(image.caption)}</div>
-                `;
-                galleryTrack.appendChild(div);
-            });
-            
-            // Add navigation dots
-            const galleryNav = document.getElementById('galleryNav');
-            galleryNav.innerHTML = '';
-            
-            galleryImages.forEach((_, index) => {
-                const dot = document.createElement('div');
-                dot.className = 'nav-dot' + (index === 0 ? ' active' : '');
-                dot.onclick = () => scrollToImage(index);
-                galleryNav.appendChild(dot);
-            });
-        }
+        // ========== PROFILE UPDATE ==========
         
-        // Gallery scroll
-        function scrollToImage(index) {
-            const galleryTrack = document.getElementById('galleryTrack');
-            const items = document.querySelectorAll('.gallery-item');
-            if (items[index]) {
-                const itemWidth = items[0].offsetWidth + 20;
-                galleryTrack.scrollTo({ left: index * itemWidth, behavior: 'smooth' });
-            }
-        }
-        
-        function updateActiveDot() {
-            const galleryTrack = document.getElementById('galleryTrack');
-            const items = document.querySelectorAll('.gallery-item');
-            const navDots = document.querySelectorAll('.nav-dot');
-            
-            if (!galleryTrack || items.length === 0) return;
-            
-            const scrollPosition = galleryTrack.scrollLeft;
-            const itemWidth = items[0].offsetWidth + 20;
-            const activeIndex = Math.round(scrollPosition / itemWidth);
-            
-            navDots.forEach((dot, index) => {
-                dot.classList.toggle('active', index === activeIndex);
-            });
-        }
-        
-        // Update profile
         async function updateProfile(event) {
             event.preventDefault();
             
@@ -1552,7 +1345,7 @@
             const county = document.getElementById('editCounty').value.trim();
             const group_name = document.getElementById('editGroupName').value.trim();
             
-            const saveBtn = document.getElementById('saveProfileBtn');
+            const saveBtn = event.target.querySelector('button[type="submit"]');
             const originalText = saveBtn.innerHTML;
             saveBtn.innerHTML = '<span class="loading-spinner"></span>Saving...';
             saveBtn.disabled = true;
@@ -1560,25 +1353,19 @@
             try {
                 const { error } = await supabaseClient
                     .from('users')
-                    .update({
-                        full_name: full_name,
-                        email: email,
-                        phone: phone,
-                        county: county,
-                        group_name: group_name || null
-                    })
+                    .update({ full_name, email, phone, county, group_name: group_name || null })
                     .eq('id', currentUser.user_id);
                 
                 if (error) throw error;
                 
-                // Update local user data
+                // Update local user
                 currentUser.full_name = full_name;
                 currentUser.email = email;
                 currentUser.phone = phone;
                 currentUser.county = county;
                 currentUser.group_name = group_name;
                 
-                // Update session storage
+                // Update session
                 const sessionData = { ...currentUser };
                 if (localStorage.getItem('guef_session')) {
                     localStorage.setItem('guef_session', JSON.stringify(sessionData));
@@ -1586,36 +1373,111 @@
                     sessionStorage.setItem('guef_session', JSON.stringify(sessionData));
                 }
                 
-                // Reload user data
-                await loadUserData();
-                
                 closeEditProfileModal();
-                showSuccessMessage('Profile updated successfully!');
+                showToast('Profile updated successfully!', 'success');
+                
+                // Refresh dashboard
+                renderDashboard();
                 
             } catch (error) {
                 console.error('Update error:', error);
-                alert('Error updating profile: ' + error.message);
+                showToast('Error updating profile: ' + error.message, 'error');
             } finally {
                 saveBtn.innerHTML = originalText;
                 saveBtn.disabled = false;
             }
         }
         
-        function showSuccessMessage(message) {
-            const welcomeCard = document.querySelector('.welcome-card');
-            const oldMessage = welcomeCard.querySelector('.success-toast');
-            if (oldMessage) oldMessage.remove();
+        async function changePassword(event) {
+            event.preventDefault();
             
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (newPassword !== confirmPassword) {
+                showToast('New passwords do not match!', 'error');
+                return;
+            }
+            
+            if (newPassword.length < 6) {
+                showToast('Password must be at least 6 characters!', 'error');
+                return;
+            }
+            
+            // Hash current password to verify
+            async function hashPassword(password) {
+                const encoder = new TextEncoder();
+                const data = encoder.encode(password);
+                const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            }
+            
+            const hashedCurrent = await hashPassword(currentPassword);
+            const hashedNew = await hashPassword(newPassword);
+            
+            // Verify current password
+            if (currentUser.password !== hashedCurrent) {
+                showToast('Current password is incorrect!', 'error');
+                return;
+            }
+            
+            const saveBtn = event.target.querySelector('button[type="submit"]');
+            const originalText = saveBtn.innerHTML;
+            saveBtn.innerHTML = '<span class="loading-spinner"></span>Changing...';
+            saveBtn.disabled = true;
+            
+            try {
+                const { error } = await supabaseClient
+                    .from('users')
+                    .update({ password: hashedNew })
+                    .eq('id', currentUser.user_id);
+                
+                if (error) throw error;
+                
+                closeChangePasswordModal();
+                showToast('Password changed successfully!', 'success');
+                
+                // Clear form
+                document.getElementById('changePasswordForm').reset();
+                
+            } catch (error) {
+                console.error('Password change error:', error);
+                showToast('Error changing password: ' + error.message, 'error');
+            } finally {
+                saveBtn.innerHTML = originalText;
+                saveBtn.disabled = false;
+            }
+        }
+        
+        // ========== UTILITY FUNCTIONS ==========
+        
+        function showToast(message, type = 'success') {
             const toast = document.createElement('div');
-            toast.className = 'success-toast';
-            toast.style.cssText = 'position: fixed; top: 80px; right: 20px; background: #27ae60; color: white; padding: 12px 20px; border-radius: 12px; z-index: 10000; animation: fadeInUp 0.3s ease;';
-            toast.innerHTML = '<i class="fas fa-check-circle"></i> ' + message;
+            toast.className = `toast-notification ${type}`;
+            toast.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                <span>${escapeHtml(message)}</span>
+            `;
             document.body.appendChild(toast);
             
             setTimeout(() => {
-                toast.style.opacity = '0';
-                setTimeout(() => toast.remove(), 500);
+                toast.style.animation = 'slideOutRight 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
             }, 3000);
+        }
+        
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diff = now - date;
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            
+            if (days === 0) return 'Today';
+            if (days === 1) return 'Yesterday';
+            if (days < 7) return `${days} days ago`;
+            return date.toLocaleDateString();
         }
         
         function escapeHtml(text) {
@@ -1625,20 +1487,26 @@
             return div.innerHTML;
         }
         
-        function scrollToProfile() {
-            document.getElementById('profileSection').scrollIntoView({ behavior: 'smooth' });
-        }
-        
         function logout() {
             localStorage.removeItem('guef_session');
             sessionStorage.removeItem('guef_session');
             window.location.href = 'login.html';
         }
         
-        // Modal functions
+        function showResources() {
+            showToast('Resources feature coming soon!', 'info');
+        }
+        
+        // ========== MODAL FUNCTIONS ==========
+        
         function openEditProfileModal() {
             const modal = document.getElementById('editProfileModal');
             if (modal) {
+                document.getElementById('editFullName').value = currentUser.full_name || '';
+                document.getElementById('editEmail').value = currentUser.email || '';
+                document.getElementById('editPhone').value = currentUser.phone || '';
+                document.getElementById('editCounty').value = currentUser.county || '';
+                document.getElementById('editGroupName').value = currentUser.group_name || '';
                 modal.classList.add('active');
                 document.body.style.overflow = 'hidden';
             }
@@ -1652,59 +1520,135 @@
             }
         }
         
-        // Event listeners
+        function openChangePasswordModal() {
+            const modal = document.getElementById('changePasswordModal');
+            if (modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+        
+        function closeChangePasswordModal() {
+            const modal = document.getElementById('changePasswordModal');
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+                document.getElementById('changePasswordForm').reset();
+            }
+        }
+        
+        // ========== EVENT LISTENERS ==========
+        
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+        document.getElementById('userName').textContent = currentUser.username;
+        document.getElementById('userAvatar').textContent = (currentUser.full_name || currentUser.username).charAt(0).toUpperCase();
+        document.getElementById('userRole').textContent = currentUser.role === 'admin' ? 'Administrator' : 'Member';
+        
+        // Mobile menu toggle
         document.getElementById('menuToggle').addEventListener('click', () => {
             document.getElementById('sidebar').classList.toggle('active');
         });
         
-        document.getElementById('editProfileForm').addEventListener('submit', updateProfile);
-        
+        // Close sidebar when clicking outside on mobile
         document.addEventListener('click', (e) => {
             const sidebar = document.getElementById('sidebar');
-            const menuToggle = document.getElementById('menuToggle');
+            const toggle = document.getElementById('menuToggle');
             if (window.innerWidth <= 768) {
-                if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+                if (!sidebar.contains(e.target) && !toggle.contains(e.target)) {
                     sidebar.classList.remove('active');
                 }
             }
         });
         
+        // Escape key to close modals
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 closeEditProfileModal();
+                closeChangePasswordModal();
             }
         });
         
-        const modal = document.getElementById('editProfileModal');
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                closeEditProfileModal();
-            }
+        // Modal click outside to close
+        document.getElementById('editProfileModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('editProfileModal')) closeEditProfileModal();
         });
         
-        const galleryTrack = document.getElementById('galleryTrack');
-        if (galleryTrack) {
-            galleryTrack.addEventListener('scroll', updateActiveDot);
-            window.addEventListener('resize', updateActiveDot);
+        document.getElementById('changePasswordModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('changePasswordModal')) closeChangePasswordModal();
+        });
+        
+        // Form submissions
+        document.getElementById('editProfileForm').addEventListener('submit', updateProfile);
+        document.getElementById('changePasswordForm').addEventListener('submit', changePassword);
+        
+        // Global search
+        document.getElementById('globalSearch').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            // Implement search functionality
+            console.log('Searching for:', searchTerm);
+        });
+        
+        // Sidebar navigation
+        document.querySelectorAll('.menu-item[data-page]').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                const page = item.dataset.page;
+                document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+                item.classList.add('active');
+                
+                if (page === 'dashboard') {
+                    document.getElementById('pageTitle').textContent = 'Dashboard';
+                    renderDashboard();
+                } else if (page === 'profile') {
+                    document.getElementById('pageTitle').textContent = 'My Profile';
+                    renderProfilePage();
+                } else {
+                    showToast(`${page} page coming soon!`, 'info');
+                }
+            });
+        });
+        
+        function renderProfilePage() {
+            const container = document.getElementById('mainContent');
+            container.innerHTML = `
+                <div class="profile-card" style="max-width: 600px; margin: 0 auto;">
+                    <div class="profile-header">
+                        <div class="profile-avatar"><span>${(currentUser.full_name || currentUser.username).charAt(0).toUpperCase()}</span></div>
+                        <h3>${escapeHtml(currentUser.full_name || currentUser.username)}</h3>
+                        <p>Member since ${currentUser.created_at ? new Date(currentUser.created_at).toLocaleDateString() : '2024'}</p>
+                    </div>
+                    <div class="profile-body">
+                        <div class="profile-info-item"><div class="profile-info-icon"><i class="fas fa-user"></i></div><div class="profile-info-content"><div class="profile-info-label">Username</div><div class="profile-info-value">@${escapeHtml(currentUser.username)}</div></div></div>
+                        <div class="profile-info-item"><div class="profile-info-icon"><i class="fas fa-envelope"></i></div><div class="profile-info-content"><div class="profile-info-label">Email</div><div class="profile-info-value">${escapeHtml(currentUser.email)}</div></div></div>
+                        <div class="profile-info-item"><div class="profile-info-icon"><i class="fas fa-phone"></i></div><div class="profile-info-content"><div class="profile-info-label">Phone</div><div class="profile-info-value">${escapeHtml(currentUser.phone || 'N/A')}</div></div></div>
+                        <div class="profile-info-item"><div class="profile-info-icon"><i class="fas fa-map-marker-alt"></i></div><div class="profile-info-content"><div class="profile-info-label">County</div><div class="profile-info-value">${escapeHtml(currentUser.county || 'N/A')}</div></div></div>
+                        <button class="edit-profile-btn" onclick="openEditProfileModal()"><i class="fas fa-edit"></i> Edit Profile</button>
+                        <button class="edit-profile-btn" onclick="openChangePasswordModal()" style="margin-top: 10px; background: var(--info);"><i class="fas fa-key"></i> Change Password</button>
+                    </div>
+                </div>
+            `;
         }
         
-        document.getElementById('currentYear').textContent = new Date().getFullYear();
-        
-        // Initialize
-        loadGallery();
+        // Initialize dashboard
         loadNotifications();
-        loadUserData();
-        loadStatistics();
-        loadRecentActivities();
+        renderDashboard();
         
-        setTimeout(updateActiveDot, 100);
+        // Set up auto-refresh for stats (every 30 seconds)
+        setInterval(() => {
+            if (document.querySelector('.stats-grid')) {
+                loadStatistics();
+            }
+        }, 30000);
         
-        // Expose global functions
-        window.scrollToProfile = scrollToProfile;
+        // Expose functions to global scope for onclick handlers
         window.openEditProfileModal = openEditProfileModal;
         window.closeEditProfileModal = closeEditProfileModal;
+        window.openChangePasswordModal = openChangePasswordModal;
+        window.closeChangePasswordModal = closeChangePasswordModal;
         window.logout = logout;
-        window.scrollToImage = scrollToImage;
+        window.showResources = showResources;
+        window.renderDashboard = renderDashboard;
+        
     })();
 </script>
 
