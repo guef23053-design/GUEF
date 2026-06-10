@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resources - GUEF</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { margin:0; padding:0; box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f0f9f4 0%, #e8f5e9 100%);
+            padding: 30px 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 30px;
+            background: white;
+            padding: 20px 30px;
+            border-radius: 24px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        h1 { color: #1b4332; font-size: 1.8rem; }
+        .btn {
+            background: #2d6a4f;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #2d6a4f;
+            color: #2d6a4f;
+        }
+        .search-filter {
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            margin-bottom: 25px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .search-box {
+            flex: 1;
+            position: relative;
+        }
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
+        .search-box input {
+            width: 100%;
+            padding: 12px 15px 12px 45px;
+            border: 2px solid #e0e0e0;
+            border-radius: 40px;
+            font-family: 'Poppins', sans-serif;
+        }
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .filter-btn {
+            background: #e8f5e9;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            transition: 0.2s;
+        }
+        .filter-btn.active, .filter-btn:hover {
+            background: #2d6a4f;
+            color: white;
+        }
+        .featured-section {
+            margin-bottom: 30px;
+        }
+        .featured-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: #1b4332;
+        }
+        .resources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .resource-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            transition: transform 0.2s;
+            border: 1px solid #e0e0e0;
+        }
+        .resource-card:hover { transform: translateY(-3px); }
+        .resource-icon {
+            font-size: 2rem;
+            margin-bottom: 12px;
+        }
+        .resource-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1b4332;
+            margin-bottom: 6px;
+        }
+        .resource-category {
+            display: inline-block;
+            background: #e8f5e9;
+            color: #2d6a4f;
+            padding: 3px 10px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            margin-bottom: 10px;
+        }
+        .resource-desc {
+            color: #5a7a6a;
+            font-size: 0.85rem;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+        .resource-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            color: gray;
+            margin-top: 10px;
+        }
+        .download-btn {
+            background: #2d6a4f;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #2d6a4f;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 40px;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1><i class="fas fa-book-open"></i> Resource Library</h1>
+        <a href="dashboard.html" class="btn btn-outline"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+    </div>
+
+    <div class="search-filter">
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="Search resources...">
+        </div>
+        <div class="filter-buttons" id="filterButtons">
+            <button class="filter-btn active" data-category="all">All</button>
+        </div>
+    </div>
+
+    <div class="featured-section" id="featuredSection" style="display:none;">
+        <div class="featured-title"><i class="fas fa-star" style="color:#f39c12;"></i> Featured Resources</div>
+        <div class="resources-grid" id="featuredGrid"></div>
+    </div>
+
+    <div class="resources-grid" id="allResourcesGrid"></div>
+</div>
+
+<script>
+    (function() {
+        const SUPABASE_URL = 'https://itcogcebxavnrcfymfxc.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0Y29nY2VieGF2bnJjZnltZnhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwMTgzNjAsImV4cCI6MjA5NjU5NDM2MH0.x7m4wk9H5RtLpBqLTJraASXa22XlwwlDo_LamFwLgok';
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Session check
+        const session = localStorage.getItem('guef_session') || sessionStorage.getItem('guef_session');
+        if (!session) { window.location.href = 'login.html'; return; }
+
+        let currentUser = null;
+        try { currentUser = JSON.parse(session); } catch(e) { window.location.href = 'login.html'; return; }
+
+        let allResources = [];
+        let categories = new Set();
+
+        // Fetch resources
+        async function loadResources() {
+            const { data, error } = await supabaseClient
+                .from('resources')
+                .select('*')
+                .order('created_at', { ascending: false });
+            if (error) { console.error(error); return; }
+            allResources = data;
+            // Build categories
+            categories.clear();
+            allResources.forEach(r => { if (r.category) categories.add(r.category); });
+            renderFilterButtons();
+            renderResources();
+        }
+
+        function renderFilterButtons() {
+            const container = document.getElementById('filterButtons');
+            container.innerHTML = '<button class="filter-btn active" data-category="all">All</button>';
+            for (let cat of categories) {
+                const btn = document.createElement('button');
+                btn.className = 'filter-btn';
+                btn.setAttribute('data-category', cat);
+                btn.textContent = cat;
+                container.appendChild(btn);
+            }
+            // Add event listeners
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    renderResources();
+                });
+            });
+        }
+
+        function renderResources() {
+            const activeFilter = document.querySelector('.filter-btn.active')?.getAttribute('data-category') || 'all';
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            let filtered = allResources.filter(r => {
+                const matchesCategory = activeFilter === 'all' || r.category === activeFilter;
+                const matchesSearch = r.title.toLowerCase().includes(searchTerm) || (r.description && r.description.toLowerCase().includes(searchTerm));
+                return matchesCategory && matchesSearch;
+            });
+            // Separate featured and normal
+            const featured = filtered.filter(r => r.is_featured);
+            const normal = filtered.filter(r => !r.is_featured);
+            // Render featured section
+            const featuredSection = document.getElementById('featuredSection');
+            const featuredGrid = document.getElementById('featuredGrid');
+            if (featured.length > 0) {
+                featuredSection.style.display = 'block';
+                featuredGrid.innerHTML = featured.map(r => renderResourceCard(r)).join('');
+                // Attach download handlers
+                featured.forEach(r => attachDownloadHandler(r.id));
+            } else {
+                featuredSection.style.display = 'none';
+            }
+            // Render all others
+            const allGrid = document.getElementById('allResourcesGrid');
+            allGrid.innerHTML = normal.map(r => renderResourceCard(r)).join('');
+            normal.forEach(r => attachDownloadHandler(r.id));
+        }
+
+        function renderResourceCard(res) {
+            const iconMap = { pdf: 'fa-file-pdf', doc: 'fa-file-word', ppt: 'fa-file-powerpoint', xls: 'fa-file-excel', default: 'fa-file-alt' };
+            const icon = iconMap[res.file_type] || iconMap.default;
+            return `
+                <div class="resource-card">
+                    <div class="resource-icon"><i class="fas ${icon}" style="color:#2d6a4f;"></i></div>
+                    <div class="resource-title">${escapeHtml(res.title)}</div>
+                    <div class="resource-category">${escapeHtml(res.category || 'General')}</div>
+                    <div class="resource-desc">${escapeHtml(res.description?.substring(0, 100))}${res.description?.length > 100 ? '…' : ''}</div>
+                    <div class="resource-meta">
+                        <span><i class="fas fa-download"></i> ${res.download_count || 0} downloads</span>
+                        <span>${res.file_size ? res.file_size : ''}</span>
+                    </div>
+                    <button class="download-btn" data-id="${res.id}"><i class="fas fa-download"></i> Download</button>
+                </div>
+            `;
+        }
+
+        function attachDownloadHandler(resourceId) {
+            const btn = document.querySelector(`.download-btn[data-id="${resourceId}"]`);
+            if (btn && !btn.hasAttribute('data-listener')) {
+                btn.setAttribute('data-listener', 'true');
+                btn.addEventListener('click', () => downloadResource(resourceId));
+            }
+        }
+
+        async function downloadResource(resourceId) {
+            const resource = allResources.find(r => r.id === resourceId);
+            if (!resource) return;
+            // Increment download count in DB
+            await supabaseClient.rpc('increment_download_count', { resource_id: resourceId });
+            // Update local array to reflect new count (optional UI update)
+            resource.download_count = (resource.download_count || 0) + 1;
+            renderResources(); // re-render to update count
+            // Trigger file download (open URL in new tab)
+            window.open(resource.file_url, '_blank');
+            showToast(`Downloading: ${resource.title}`);
+        }
+
+        function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
+        function showToast(msg) { const t=document.createElement('div'); t.className='toast'; t.innerText=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),2500); }
+
+        // Search listener
+        document.getElementById('searchInput').addEventListener('input', () => renderResources());
+
+        // Create SQL function for incrementing download count (run once in Supabase)
+        // CREATE OR REPLACE FUNCTION increment_download_count(resource_id UUID) RETURNS VOID AS $$ BEGIN UPDATE resources SET download_count = download_count + 1 WHERE id = resource_id; END; $$ LANGUAGE plpgsql;
+
+        loadResources();
+    })();
+</script>
+</body>
+</html>
