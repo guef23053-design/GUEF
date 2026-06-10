@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Events - GUEF</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { margin:0; padding:0; box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f0f9f4 0%, #e8f5e9 100%);
+            padding: 30px 20px;
+        }
+        .container { max-width: 1300px; margin: 0 auto; }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 30px;
+            background: white;
+            padding: 20px 30px;
+            border-radius: 24px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        h1 { color: #1b4332; font-size: 1.8rem; }
+        .btn {
+            background: #2d6a4f;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #2d6a4f;
+            color: #2d6a4f;
+        }
+        .btn-sm {
+            padding: 5px 12px;
+            font-size: 0.8rem;
+        }
+        .tabs {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+        .tab.active {
+            color: #2d6a4f;
+            border-bottom: 3px solid #2d6a4f;
+        }
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+        }
+        .event-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: transform 0.2s;
+        }
+        .event-card:hover { transform: translateY(-5px); }
+        .event-image {
+            height: 160px;
+            background-size: cover;
+            background-position: center;
+        }
+        .event-content { padding: 20px; }
+        .event-title { font-size: 1.2rem; font-weight: 600; color: #1b4332; margin-bottom: 8px; }
+        .event-date { color: #2d6a4f; font-weight: 500; margin-bottom: 8px; }
+        .event-location { color: gray; font-size: 0.85rem; margin-bottom: 12px; display: flex; align-items: center; gap: 5px; }
+        .event-desc { color: #5a7a6a; font-size: 0.9rem; margin-bottom: 15px; line-height: 1.5; }
+        .event-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+        .register-btn {
+            background: #2d6a4f;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .register-btn:disabled { background: #9cb8ab; cursor: not-allowed; }
+        .cancel-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        .status-badge {
+            font-size: 0.7rem;
+            padding: 4px 10px;
+            border-radius: 30px;
+            background: #f39c12;
+            color: white;
+            display: inline-block;
+        }
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #2d6a4f;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 40px;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1><i class="fas fa-calendar-alt"></i> Upcoming Events</h1>
+        <a href="dashboard.html" class="btn btn-outline"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+    </div>
+
+    <div class="tabs">
+        <div class="tab active" data-tab="upcoming">📅 Upcoming Events</div>
+        <div class="tab" data-tab="my">✅ My Events</div>
+    </div>
+
+    <div id="upcomingTab">
+        <div class="events-grid" id="eventsList"></div>
+    </div>
+    <div id="myTab" style="display:none;">
+        <div class="events-grid" id="myEventsList"></div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        const SUPABASE_URL = 'https://itcogcebxavnrcfymfxc.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0Y29nY2VieGF2bnJjZnltZnhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwMTgzNjAsImV4cCI6MjA5NjU5NDM2MH0.x7m4wk9H5RtLpBqLTJraASXa22XlwwlDo_LamFwLgok';
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        const session = localStorage.getItem('guef_session') || sessionStorage.getItem('guef_session');
+        let currentUser = null;
+        if (!session) { window.location.href = 'login.html'; return; }
+        try { currentUser = JSON.parse(session); } catch(e) { window.location.href = 'login.html'; return; }
+
+        async function loadUpcomingEvents() {
+            const { data: events, error } = await supabaseClient
+                .from('events')
+                .select('*')
+                .eq('status', 'upcoming')
+                .order('event_date', { ascending: true });
+            if (error) return;
+            const container = document.getElementById('eventsList');
+            container.innerHTML = '';
+            for (const ev of events) {
+                // Check if already registered
+                const { data: reg } = await supabaseClient
+                    .from('event_registrations')
+                    .select('id')
+                    .eq('event_id', ev.id)
+                    .eq('user_id', currentUser.user_id)
+                    .maybeSingle();
+                const alreadyRegistered = !!reg;
+                const spotsLeft = ev.capacity - (ev.registered_count || 0);
+                const card = document.createElement('div');
+                card.className = 'event-card';
+                card.innerHTML = `
+                    <div class="event-image" style="background-image:url('${ev.image_url || 'default.jpg'}'); background-size:cover;"></div>
+                    <div class="event-content">
+                        <div class="event-title">${escapeHtml(ev.title)}</div>
+                        <div class="event-date"><i class="far fa-calendar-alt"></i> ${formatDate(ev.event_date)}</div>
+                        <div class="event-location"><i class="fas fa-map-marker-alt"></i> ${escapeHtml(ev.location || 'Online')}</div>
+                        <div class="event-desc">${escapeHtml(ev.description?.substring(0, 100))}...</div>
+                        <div class="event-meta">
+                            <span class="status-badge">${spotsLeft} spots left</span>
+                            <button class="register-btn" data-id="${ev.id}" ${alreadyRegistered || spotsLeft <= 0 ? 'disabled' : ''}>
+                                ${alreadyRegistered ? '✓ Registered' : 'Register'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+                if (!alreadyRegistered && spotsLeft > 0) {
+                    card.querySelector('.register-btn').addEventListener('click', () => registerForEvent(ev.id, ev.capacity, ev.registered_count));
+                }
+            }
+        }
+
+        async function loadMyEvents() {
+            const { data: registrations, error } = await supabaseClient
+                .from('event_registrations')
+                .select('event_id, status, registered_at, events(*)')
+                .eq('user_id', currentUser.user_id);
+            if (error) return;
+            const container = document.getElementById('myEventsList');
+            container.innerHTML = '';
+            if (!registrations || registrations.length === 0) {
+                container.innerHTML = '<div style="text-align:center; padding:40px;">You have not registered for any event yet.</div>';
+                return;
+            }
+            for (const reg of registrations) {
+                const ev = reg.events;
+                const card = document.createElement('div');
+                card.className = 'event-card';
+                card.innerHTML = `
+                    <div class="event-image" style="background-image:url('${ev.image_url || 'default.jpg'}');"></div>
+                    <div class="event-content">
+                        <div class="event-title">${escapeHtml(ev.title)}</div>
+                        <div class="event-date"><i class="far fa-calendar-alt"></i> ${formatDate(ev.event_date)}</div>
+                        <div class="event-location"><i class="fas fa-map-marker-alt"></i> ${escapeHtml(ev.location || 'Online')}</div>
+                        <div class="event-desc">${escapeHtml(ev.description?.substring(0, 100))}...</div>
+                        <div class="event-meta">
+                            <span class="status-badge">Registered: ${new Date(reg.registered_at).toLocaleDateString()}</span>
+                            <button class="cancel-btn" data-id="${reg.event_id}" data-regid="${reg.id}">Cancel</button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+                card.querySelector('.cancel-btn').addEventListener('click', () => cancelRegistration(reg.event_id, ev.capacity, ev.registered_count, reg.id));
+            }
+        }
+
+        async function registerForEvent(eventId, capacity, currentReg) {
+            if (currentReg >= capacity) { showToast('Event is full!', 'error'); return; }
+            const { error } = await supabaseClient
+                .from('event_registrations')
+                .insert({ event_id: eventId, user_id: currentUser.user_id, status: 'registered' });
+            if (error) { showToast('Error: ' + error.message, 'error'); return; }
+            // Increment registered_count
+            await supabaseClient.rpc('increment_event_registrations', { event_id: eventId });
+            showToast('Registration successful!', 'success');
+            loadUpcomingEvents();
+            if (document.querySelector('.tab.active').innerText.includes('My')) loadMyEvents();
+        }
+
+        async function cancelRegistration(eventId, capacity, currentReg, registrationId) {
+            if (!confirm('Cancel your registration?')) return;
+            const { error } = await supabaseClient
+                .from('event_registrations')
+                .delete()
+                .eq('id', registrationId);
+            if (error) { showToast('Error: ' + error.message, 'error'); return; }
+            await supabaseClient.rpc('decrement_event_registrations', { event_id: eventId });
+            showToast('Registration cancelled.', 'info');
+            loadUpcomingEvents();
+            loadMyEvents();
+        }
+
+        // Helper: format date
+        function formatDate(iso) { if (!iso) return 'TBD'; return new Date(iso).toLocaleDateString('en-KE', { weekday:'short', year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' }); }
+        function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
+        function showToast(msg) { const t=document.createElement('div'); t.className='toast'; t.innerText=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),2500); }
+
+        // Tab switching
+        const tabs = document.querySelectorAll('.tab');
+        const upcomingDiv = document.getElementById('upcomingTab');
+        const myDiv = document.getElementById('myTab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                if (tab.innerText.includes('Upcoming')) {
+                    upcomingDiv.style.display = 'block';
+                    myDiv.style.display = 'none';
+                    loadUpcomingEvents();
+                } else {
+                    upcomingDiv.style.display = 'none';
+                    myDiv.style.display = 'block';
+                    loadMyEvents();
+                }
+            });
+        });
+
+        // Create RPC functions in Supabase (run once)
+        // Note: You need to create these SQL functions in Supabase to increment/decrement registered_count
+        // I'll include them in the answer below
+
+        loadUpcomingEvents();
+    })();
+</script>
+</body>
+</html>
