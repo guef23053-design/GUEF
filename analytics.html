@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - GUEF</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f0f9f4 0%, #e8f5e9 100%);
+            padding: 30px 20px;
+        }
+        .container { max-width: 1300px; margin: 0 auto; }
+        .header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 24px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        h1 { color: #1b4332; font-size: 1.8rem; }
+        .btn {
+            background: #2d6a4f;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 40px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-outline { background: transparent; border: 1px solid #2d6a4f; color: #2d6a4f; }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .stat-number { font-size: 2.2rem; font-weight: 700; color: #2d6a4f; }
+        .chart-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        .chart-card {
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .chart-card h3 { margin-bottom: 15px; color: #1b4332; }
+        canvas { max-height: 300px; width: 100%; }
+        .full-width { grid-column: span 2; }
+        @media (max-width: 800px) {
+            .chart-row { grid-template-columns: 1fr; }
+            .full-width { grid-column: span 1; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1><i class="fas fa-chart-line"></i> Analytics Dashboard</h1>
+        <a href="dashboard.html" class="btn btn-outline"><i class="fas fa-arrow-left"></i> Back</a>
+    </div>
+
+    <div class="stats-grid" id="statsGrid">
+        <div class="stat-card"><i class="fas fa-users fa-2x"></i><div class="stat-number" id="totalUsers">—</div><div>Total Users</div></div>
+        <div class="stat-card"><i class="fas fa-seedling fa-2x"></i><div class="stat-number" id="totalProjects">—</div><div>Total Projects</div></div>
+        <div class="stat-card"><i class="fas fa-calendar-alt fa-2x"></i><div class="stat-number" id="totalEvents">—</div><div>Upcoming Events</div></div>
+        <div class="stat-card"><i class="fas fa-download fa-2x"></i><div class="stat-number" id="totalDownloads">—</div><div>Resource Downloads</div></div>
+    </div>
+
+    <div class="chart-row">
+        <div class="chart-card">
+            <h3><i class="fas fa-chart-line"></i> User Registrations (Last 6 months)</h3>
+            <canvas id="userRegChart"></canvas>
+        </div>
+        <div class="chart-card">
+            <h3><i class="fas fa-chart-pie"></i> Projects by Category</h3>
+            <canvas id="projectCategoryChart"></canvas>
+        </div>
+    </div>
+
+    <div class="chart-row">
+        <div class="chart-card">
+            <h3><i class="fas fa-chart-bar"></i> Top 5 Most Downloaded Resources</h3>
+            <canvas id="topResourcesChart"></canvas>
+        </div>
+        <div class="chart-card">
+            <h3><i class="fas fa-chart-line"></i> Event Registrations Trend</h3>
+            <canvas id="eventRegChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        const SUPABASE_URL = 'https://itcogcebxavnrcfymfxc.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0Y29nY2VieGF2bnJjZnltZnhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwMTgzNjAsImV4cCI6MjA5NjU5NDM2MH0.x7m4wk9H5RtLpBqLTJraASXa22XlwwlDo_LamFwLgok';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Session
+        const session = localStorage.getItem('guef_session') || sessionStorage.getItem('guef_session');
+        if (!session) { window.location.href = 'login.html'; return; }
+        let currentUser;
+        try { currentUser = JSON.parse(session); } catch(e) { window.location.href = 'login.html'; return; }
+
+        let userRegChart, projectCatChart, topResChart, eventRegChart;
+
+        async function loadStats() {
+            // Total users
+            const { count: users } = await supabase.from('users').select('*', { count: 'exact', head: true });
+            document.getElementById('totalUsers').innerText = users || 0;
+            // Total projects
+            const { count: projects } = await supabase.from('projects').select('*', { count: 'exact', head: true });
+            document.getElementById('totalProjects').innerText = projects || 0;
+            // Upcoming events
+            const { count: events } = await supabase.from('events').select('*', { count: 'exact', head: true }).eq('status', 'upcoming');
+            document.getElementById('totalEvents').innerText = events || 0;
+            // Total downloads sum from resources
+            const { data: resources } = await supabase.from('resources').select('download_count');
+            const totalDownloads = resources?.reduce((sum, r) => sum + (r.download_count || 0), 0) || 0;
+            document.getElementById('totalDownloads').innerText = totalDownloads;
+        }
+
+        async function loadUserRegChart() {
+            const { data: users } = await supabase.from('users').select('created_at');
+            if (!users) return;
+            const monthly = {};
+            users.forEach(u => {
+                if (u.created_at) {
+                    const date = new Date(u.created_at);
+                    const key = `${date.getFullYear()}-${date.getMonth()+1}`;
+                    monthly[key] = (monthly[key] || 0) + 1;
+                }
+            });
+            const sortedMonths = Object.keys(monthly).sort().slice(-6);
+            const labels = sortedMonths.map(m => {
+                const [year, month] = m.split('-');
+                return new Date(year, month-1).toLocaleString('default', { month: 'short', year: 'numeric' });
+            });
+            const data = sortedMonths.map(m => monthly[m]);
+            if (userRegChart) userRegChart.destroy();
+            const ctx = document.getElementById('userRegChart').getContext('2d');
+            userRegChart = new Chart(ctx, {
+                type: 'line',
+                data: { labels, datasets: [{ label: 'New Users', data, borderColor: '#2d6a4f', fill: true, tension: 0.3 }] }
+            });
+        }
+
+        async function loadProjectCategoryChart() {
+            const { data: projects } = await supabase.from('projects').select('category');
+            if (!projects) return;
+            const cats = {};
+            projects.forEach(p => { if (p.category) cats[p.category] = (cats[p.category] || 0) + 1; });
+            if (projectCatChart) projectCatChart.destroy();
+            const ctx = document.getElementById('projectCategoryChart').getContext('2d');
+            projectCatChart = new Chart(ctx, {
+                type: 'pie',
+                data: { labels: Object.keys(cats), datasets: [{ data: Object.values(cats), backgroundColor: ['#2d6a4f','#40916c','#52b788','#74c69d','#95d5b2'] }] }
+            });
+        }
+
+        async function loadTopResourcesChart() {
+            const { data: resources } = await supabase.from('resources').select('title, download_count').order('download_count', { ascending: false }).limit(5);
+            if (!resources) return;
+            if (topResChart) topResChart.destroy();
+            const ctx = document.getElementById('topResourcesChart').getContext('2d');
+            topResChart = new Chart(ctx, {
+                type: 'bar',
+                data: { labels: resources.map(r => r.title.length > 20 ? r.title.substring(0,20)+'…' : r.title), datasets: [{ label: 'Downloads', data: resources.map(r => r.download_count || 0), backgroundColor: '#2d6a4f' }] }
+            });
+        }
+
+        async function loadEventRegChart() {
+            // Fetch event registrations per month
+            const { data: registrations } = await supabase.from('event_registrations').select('registered_at');
+            if (!registrations) return;
+            const monthly = {};
+            registrations.forEach(r => {
+                if (r.registered_at) {
+                    const date = new Date(r.registered_at);
+                    const key = `${date.getFullYear()}-${date.getMonth()+1}`;
+                    monthly[key] = (monthly[key] || 0) + 1;
+                }
+            });
+            const sortedMonths = Object.keys(monthly).sort().slice(-6);
+            const labels = sortedMonths.map(m => {
+                const [year, month] = m.split('-');
+                return new Date(year, month-1).toLocaleString('default', { month: 'short', year: 'numeric' });
+            });
+            const data = sortedMonths.map(m => monthly[m]);
+            if (eventRegChart) eventRegChart.destroy();
+            const ctx = document.getElementById('eventRegChart').getContext('2d');
+            eventRegChart = new Chart(ctx, {
+                type: 'line',
+                data: { labels, datasets: [{ label: 'Registrations', data, borderColor: '#f39c12', fill: true, tension: 0.3 }] }
+            });
+        }
+
+        loadStats();
+        loadUserRegChart();
+        loadProjectCategoryChart();
+        loadTopResourcesChart();
+        loadEventRegChart();
+    })();
+</script>
+</body>
+</html>
