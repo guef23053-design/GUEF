@@ -337,220 +337,204 @@
 </div>
 
 <div class="toast-container" id="toastContainer"></div>
+<!-- ... (the entire HTML head and body up to the script tag remains the same) ... -->
 
 <script>
-    // Supabase config (same as before)
-    const SUPABASE_URL = 'https://itcogcebxavnrcfymfxc.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0Y29nY2VieGF2bnJjZnltZnhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwMTgzNjAsImV4cCI6MjA5NjU5NDM2MH0.x7m4wk9H5RtLpBqLTJraASXa22XlwwlDo_LamFwLgok';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    (function() {   // IIFE to avoid global conflicts
+        const SUPABASE_URL = 'https://itcogcebxavnrcfymfxc.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0Y29nY2VieGF2bnJjZnltZnhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwMTgzNjAsImV4cCI6MjA5NjU5NDM2MH0.x7m4wk9H5RtLpBqLTJraASXa22XlwwlDo_LamFwLgok';
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // Session & authorization
-    const session = localStorage.getItem('guef_session') || sessionStorage.getItem('guef_session');
-    let currentUser = null;
-    if (!session) { window.location.href = 'login.html'; }
-    try { currentUser = JSON.parse(session); } catch(e) { window.location.href = 'login.html'; }
+        // Session & authorization
+        const session = localStorage.getItem('guef_session') || sessionStorage.getItem('guef_session');
+        let currentUser = null;
+        if (!session) { window.location.href = 'login.html'; return; }
+        try { currentUser = JSON.parse(session); } catch(e) { window.location.href = 'login.html'; return; }
 
-    // Verify admin role on load (extra security)
-    async function verifyAdmin() {
-        const { data, error } = await supabase.from('users').select('role').eq('id', currentUser.user_id).single();
-        if (error || data?.role !== 'admin') {
-            window.location.href = 'dashboard.html';
-        }
-    }
-
-    // Helper: hash password (SHA-256 same as registration)
-    async function hashPassword(password) {
-        const encoder = new TextEncoder();
-        const data = encoder.encode(password);
-        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    }
-
-    // Toast notifications
-    function showToast(message, type = 'success') {
-        const container = document.getElementById('toastContainer');
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${message}`;
-        container.appendChild(toast);
-        setTimeout(() => toast.remove(), 3500);
-    }
-
-    // Load all users and update stats
-    async function loadUsers() {
-        const { data: users, error } = await supabase
-            .from('users')
-            .select('id, full_name, email, username, county, role, phone, national_id, group_name')
-            .order('created_at', { ascending: false });
-
-        if (error) {
-            showToast('Error loading users: ' + error.message, 'error');
-            return;
-        }
-
-        const tbody = document.getElementById('usersTableBody');
-        tbody.innerHTML = '';
-        let adminCount = 0;
-        for (const user of users) {
-            if (user.role === 'admin') adminCount++;
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${escapeHtml(user.full_name || '—')}</td>
-                <td>${escapeHtml(user.email)}</td>
-                <td>@${escapeHtml(user.username)}</td>
-                <td>${escapeHtml(user.county || '—')}</td>
-                <td><span class="badge ${user.role === 'admin' ? 'badge-admin' : 'badge-user'}">${escapeHtml(user.role)}</span></td>
-                <td class="action-icons">
-                    <i class="fas fa-edit" title="Edit User" onclick="openEditModal('${user.id}')"></i>
-                    <i class="fas fa-trash-alt" title="Delete User" onclick="deleteUser('${user.id}', '${escapeHtml(user.full_name)}')"></i>
-                    ${user.role === 'admin' ? 
-                        `<i class="fas fa-user-shield" title="Remove Admin" onclick="toggleRole('${user.id}', 'user')"></i>` :
-                        `<i class="fas fa-user-shield" style="color:#f39c12;" title="Make Admin" onclick="toggleRole('${user.id}', 'admin')"></i>`
-                    }
-                </td>
-            `;
-            tbody.appendChild(row);
-        }
-        document.getElementById('totalUsers').innerText = users.length;
-        document.getElementById('totalAdmins').innerText = adminCount;
-
-        // Load unique counties count
-        const { data: countiesData } = await supabase.from('users').select('county').not('county', 'is', null);
-        const uniqueCounties = countiesData ? new Set(countiesData.map(c => c.county)).size : 0;
-        document.getElementById('totalCounties').innerText = uniqueCounties;
-    }
-
-    // Open add user modal
-    document.getElementById('addUserBtn').onclick = () => {
-        document.getElementById('modalTitle').innerText = 'Add New User';
-        document.getElementById('userForm').reset();
-        document.getElementById('userId').value = '';
-        document.getElementById('passwordGroup').style.display = 'block'; // show password field for new user
-        document.getElementById('password').required = true;
-        openModal();
-    };
-
-    // Open edit user modal
-    window.openEditModal = async (userId) => {
-        const { data: user, error } = await supabase.from('users').select('*').eq('id', userId).single();
-        if (error) { showToast('Error fetching user', 'error'); return; }
-        document.getElementById('modalTitle').innerText = 'Edit User';
-        document.getElementById('userId').value = user.id;
-        document.getElementById('fullName').value = user.full_name || '';
-        document.getElementById('email').value = user.email || '';
-        document.getElementById('phone').value = user.phone || '';
-        document.getElementById('nationalId').value = user.national_id || '';
-        document.getElementById('county').value = user.county || '';
-        document.getElementById('groupName').value = user.group_name || '';
-        document.getElementById('username').value = user.username || '';
-        document.getElementById('role').value = user.role || 'user';
-        document.getElementById('passwordGroup').style.display = 'none'; // hide password field on edit
-        document.getElementById('password').required = false;
-        openModal();
-    };
-
-    // Save (Create or Update)
-    document.getElementById('userForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const userId = document.getElementById('userId').value;
-        const fullName = document.getElementById('fullName').value.trim();
-        const email = document.getElementById('email').value.trim();
-        const phone = document.getElementById('phone').value.trim();
-        const nationalId = document.getElementById('nationalId').value.trim();
-        const county = document.getElementById('county').value.trim();
-        const groupName = document.getElementById('groupName').value.trim();
-        const username = document.getElementById('username').value.trim();
-        const role = document.getElementById('role').value;
-        const password = document.getElementById('password').value;
-        
-        if (!fullName || !email || !username) {
-            showToast('Please fill required fields: Full Name, Email, Username', 'error');
-            return;
-        }
-        if (!userId && password.length < 6) {
-            showToast('Password must be at least 6 characters', 'error');
-            return;
-        }
-
-        const submitBtn = document.getElementById('submitBtn');
-        const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<span class="loading-spinner"></span> Saving...';
-        submitBtn.disabled = true;
-
-        try {
-            if (userId) {
-                // UPDATE existing user (password unchanged unless provided)
-                const updates = { full_name: fullName, email, phone, national_id: nationalId, county, group_name: groupName, username, role };
-                if (password) {
-                    updates.password = await hashPassword(password);
-                }
-                const { error } = await supabase.from('users').update(updates).eq('id', userId);
-                if (error) throw error;
-                showToast('User updated successfully', 'success');
-            } else {
-                // CREATE new user
-                // Check if username or email already exists
-                const { data: existing } = await supabase.from('users').select('username, email').or(`username.eq.${username},email.eq.${email}`);
-                if (existing && existing.length > 0) {
-                    let msg = '';
-                    if (existing.some(u => u.username === username)) msg = 'Username already taken.';
-                    if (existing.some(u => u.email === email)) msg += (msg ? ' Email already registered.' : 'Email already registered.');
-                    showToast(msg, 'error');
-                    submitBtn.innerHTML = originalText;
-                    submitBtn.disabled = false;
-                    return;
-                }
-                const hashedPassword = await hashPassword(password);
-                const { error } = await supabase.from('users').insert({
-                    full_name: fullName, email, phone, national_id: nationalId, county, group_name: groupName, username,
-                    password: hashedPassword, role, created_at: new Date().toISOString()
-                });
-                if (error) throw error;
-                showToast('User created successfully', 'success');
+        async function verifyAdmin() {
+            const { data, error } = await supabaseClient.from('users').select('role').eq('id', currentUser.user_id).single();
+            if (error || data?.role !== 'admin') {
+                window.location.href = 'dashboard.html';
             }
-            closeModal();
-            loadUsers();
-        } catch (err) {
-            console.error(err);
-            showToast(err.message, 'error');
-        } finally {
-            submitBtn.innerHTML = originalText;
-            submitBtn.disabled = false;
         }
-    });
 
-    // Delete user
-    window.deleteUser = async (userId, userName) => {
-        if (!confirm(`Delete user "${userName}"? This action cannot be undone.`)) return;
-        const { error } = await supabase.from('users').delete().eq('id', userId);
-        if (error) showToast('Error deleting user', 'error');
-        else { showToast(`User ${userName} deleted`, 'success'); loadUsers(); }
-    };
+        async function hashPassword(password) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(password);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
 
-    // Toggle role (admin <-> user)
-    window.toggleRole = async (userId, newRole) => {
-        const { error } = await supabase.from('users').update({ role: newRole }).eq('id', userId);
-        if (error) showToast('Error updating role', 'error');
-        else { showToast(`Role changed to ${newRole}`, 'success'); loadUsers(); }
-    };
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${message}`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3500);
+        }
 
-    // Modal helpers
-    const modal = document.getElementById('userModal');
-    function openModal() { modal.classList.add('active'); }
-    window.closeModal = function() { modal.classList.remove('active'); document.getElementById('userForm').reset(); };
-    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+        async function loadUsers() {
+            const { data: users, error } = await supabaseClient
+                .from('users')
+                .select('id, full_name, email, username, county, role, phone, national_id, group_name')
+                .order('created_at', { ascending: false });
 
-    // Misc
-    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;' }[m])); }
-    function goToDashboard() { window.location.href = 'dashboard.html'; }
-    function logout() { localStorage.removeItem('guef_session'); sessionStorage.removeItem('guef_session'); window.location.href = 'login.html'; }
+            if (error) {
+                showToast('Error loading users: ' + error.message, 'error');
+                return;
+            }
 
-    // Initialize
-    (async () => {
-        await verifyAdmin();
-        await loadUsers();
-    })();
+            const tbody = document.getElementById('usersTableBody');
+            tbody.innerHTML = '';
+            let adminCount = 0;
+            for (const user of users) {
+                if (user.role === 'admin') adminCount++;
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${escapeHtml(user.full_name || '—')}</td>
+                    <td>${escapeHtml(user.email)}</td>
+                    <td>@${escapeHtml(user.username)}</td>
+                    <td>${escapeHtml(user.county || '—')}</td>
+                    <td><span class="badge ${user.role === 'admin' ? 'badge-admin' : 'badge-user'}">${escapeHtml(user.role)}</span></td>
+                    <td class="action-icons">
+                        <i class="fas fa-edit" title="Edit User" onclick="window.openEditModal('${user.id}')"></i>
+                        <i class="fas fa-trash-alt" title="Delete User" onclick="window.deleteUser('${user.id}', '${escapeHtml(user.full_name)}')"></i>
+                        ${user.role === 'admin' ? 
+                            `<i class="fas fa-user-shield" title="Remove Admin" onclick="window.toggleRole('${user.id}', 'user')"></i>` :
+                            `<i class="fas fa-user-shield" style="color:#f39c12;" title="Make Admin" onclick="window.toggleRole('${user.id}', 'admin')"></i>`
+                        }
+                    </td>
+                `;
+                tbody.appendChild(row);
+            }
+            document.getElementById('totalUsers').innerText = users.length;
+            document.getElementById('totalAdmins').innerText = adminCount;
+
+            const { data: countiesData } = await supabaseClient.from('users').select('county').not('county', 'is', null);
+            const uniqueCounties = countiesData ? new Set(countiesData.map(c => c.county)).size : 0;
+            document.getElementById('totalCounties').innerText = uniqueCounties;
+        }
+
+        window.openEditModal = async (userId) => {
+            const { data: user, error } = await supabaseClient.from('users').select('*').eq('id', userId).single();
+            if (error) { showToast('Error fetching user', 'error'); return; }
+            document.getElementById('modalTitle').innerText = 'Edit User';
+            document.getElementById('userId').value = user.id;
+            document.getElementById('fullName').value = user.full_name || '';
+            document.getElementById('email').value = user.email || '';
+            document.getElementById('phone').value = user.phone || '';
+            document.getElementById('nationalId').value = user.national_id || '';
+            document.getElementById('county').value = user.county || '';
+            document.getElementById('groupName').value = user.group_name || '';
+            document.getElementById('username').value = user.username || '';
+            document.getElementById('role').value = user.role || 'user';
+            document.getElementById('passwordGroup').style.display = 'none';
+            document.getElementById('password').required = false;
+            openModal();
+        };
+
+        window.deleteUser = async (userId, userName) => {
+            if (!confirm(`Delete user "${userName}"? This action cannot be undone.`)) return;
+            const { error } = await supabaseClient.from('users').delete().eq('id', userId);
+            if (error) showToast('Error deleting user', 'error');
+            else { showToast(`User ${userName} deleted`, 'success'); loadUsers(); }
+        };
+
+        window.toggleRole = async (userId, newRole) => {
+            const { error } = await supabaseClient.from('users').update({ role: newRole }).eq('id', userId);
+            if (error) showToast('Error updating role', 'error');
+            else { showToast(`Role changed to ${newRole}`, 'success'); loadUsers(); }
+        };
+
+        document.getElementById('addUserBtn').onclick = () => {
+            document.getElementById('modalTitle').innerText = 'Add New User';
+            document.getElementById('userForm').reset();
+            document.getElementById('userId').value = '';
+            document.getElementById('passwordGroup').style.display = 'block';
+            document.getElementById('password').required = true;
+            openModal();
+        };
+
+        document.getElementById('userForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const userId = document.getElementById('userId').value;
+            const fullName = document.getElementById('fullName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const nationalId = document.getElementById('nationalId').value.trim();
+            const county = document.getElementById('county').value.trim();
+            const groupName = document.getElementById('groupName').value.trim();
+            const username = document.getElementById('username').value.trim();
+            const role = document.getElementById('role').value;
+            const password = document.getElementById('password').value;
+            
+            if (!fullName || !email || !username) {
+                showToast('Please fill required fields: Full Name, Email, Username', 'error');
+                return;
+            }
+            if (!userId && password.length < 6) {
+                showToast('Password must be at least 6 characters', 'error');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<span class="loading-spinner"></span> Saving...';
+            submitBtn.disabled = true;
+
+            try {
+                if (userId) {
+                    const updates = { full_name: fullName, email, phone, national_id: nationalId, county, group_name: groupName, username, role };
+                    if (password) updates.password = await hashPassword(password);
+                    const { error } = await supabaseClient.from('users').update(updates).eq('id', userId);
+                    if (error) throw error;
+                    showToast('User updated successfully', 'success');
+                } else {
+                    const { data: existing } = await supabaseClient.from('users').select('username, email').or(`username.eq.${username},email.eq.${email}`);
+                    if (existing && existing.length > 0) {
+                        let msg = '';
+                        if (existing.some(u => u.username === username)) msg = 'Username already taken.';
+                        if (existing.some(u => u.email === email)) msg += (msg ? ' Email already registered.' : 'Email already registered.');
+                        showToast(msg, 'error');
+                        submitBtn.innerHTML = originalText;
+                        submitBtn.disabled = false;
+                        return;
+                    }
+                    const hashedPassword = await hashPassword(password);
+                    const { error } = await supabaseClient.from('users').insert({
+                        full_name: fullName, email, phone, national_id: nationalId, county, group_name: groupName, username,
+                        password: hashedPassword, role, created_at: new Date().toISOString()
+                    });
+                    if (error) throw error;
+                    showToast('User created successfully', 'success');
+                }
+                closeModal();
+                loadUsers();
+            } catch (err) {
+                console.error(err);
+                showToast(err.message, 'error');
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+
+        const modal = document.getElementById('userModal');
+        function openModal() { modal.classList.add('active'); }
+        window.closeModal = function() { modal.classList.remove('active'); document.getElementById('userForm').reset(); };
+        modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+        function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;' }[m])); }
+        window.goToDashboard = function() { window.location.href = 'dashboard.html'; };
+        window.logout = function() { localStorage.removeItem('guef_session'); sessionStorage.removeItem('guef_session'); window.location.href = 'login.html'; };
+
+        (async () => {
+            await verifyAdmin();
+            await loadUsers();
+        })();
+    })();   // end IIFE
 </script>
 </body>
 </html>
