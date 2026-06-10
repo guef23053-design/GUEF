@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
+        /* (same styles as above) */
         * { margin:0; padding:0; box-sizing: border-box; }
         body {
             font-family: 'Poppins', sans-serif;
@@ -145,121 +146,146 @@
 </div>
 
 <script>
-    const SUPABASE_URL = 'https://itcogcebxavnrcfymfxc.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0Y29nY2VieGF2bnJjZnltZnhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwMTgzNjAsImV4cCI6MjA5NjU5NDM2MH0.x7m4wk9H5RtLpBqLTJraASXa22XlwwlDo_LamFwLgok';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    (function() {
+        'use strict';
+        
+        const SUPABASE_URL = 'https://itcogcebxavnrcfymfxc.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0Y29nY2VieGF2bnJjZnltZnhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwMTgzNjAsImV4cCI6MjA5NjU5NDM2MH0.x7m4wk9H5RtLpBqLTJraASXa22XlwwlDo_LamFwLgok';
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const session = localStorage.getItem('guef_session') || sessionStorage.getItem('guef_session');
-    let currentUser = null;
-    try { currentUser = JSON.parse(session); } catch(e) { window.location.href = 'login.html'; }
-    if (!currentUser) window.location.href = 'login.html';
-
-    async function loadProjects() {
-        const { data: projects, error } = await supabase
-            .from('projects')
-            .select('*')
-            .eq('status', 'active')
-            .order('start_date', { ascending: true });
-        if (error) return;
-        const container = document.getElementById('projectsList');
-        container.innerHTML = '';
-        for (const p of projects) {
-            // check if user already applied
-            const { data: applied } = await supabase
-                .from('project_applications')
-                .select('id')
-                .eq('project_id', p.id)
-                .eq('user_id', currentUser.user_id);
-            const alreadyApplied = applied && applied.length > 0;
-            const card = document.createElement('div');
-            card.className = 'project-card';
-            card.innerHTML = `
-                <div class="project-image" style="background-image:url('${p.image_url || 'default.jpg'}'); background-size:cover;"></div>
-                <div class="project-content">
-                    <div class="project-category">${p.category || 'General'}</div>
-                    <div class="project-title">${escapeHtml(p.title)}</div>
-                    <div class="project-desc">${escapeHtml(p.description?.substring(0, 120))}...</div>
-                    <div class="project-meta"><i class="far fa-calendar-alt"></i> ${formatDate(p.start_date)} - ${formatDate(p.end_date)}</div>
-                    <button class="apply-btn" data-id="${p.id}" ${alreadyApplied ? 'disabled' : ''}>
-                        ${alreadyApplied ? '✓ Applied' : 'Apply Now'}
-                    </button>
-                </div>
-            `;
-            container.appendChild(card);
-            if (!alreadyApplied) {
-                card.querySelector('.apply-btn').addEventListener('click', () => applyForProject(p.id));
-            }
-        }
-    }
-
-    async function loadMyApplications() {
-        const { data: apps, error } = await supabase
-            .from('project_applications')
-            .select('project_id, status, applied_at, projects(*)')
-            .eq('user_id', currentUser.user_id);
-        if (error) return;
-        const container = document.getElementById('myProjectsList');
-        container.innerHTML = '';
-        if (!apps || apps.length === 0) {
-            container.innerHTML = '<div style="text-align:center; padding:40px;">You have not applied to any project yet.</div>';
+        // Session check
+        const session = localStorage.getItem('guef_session') || sessionStorage.getItem('guef_session');
+        let currentUser = null;
+        if (!session) {
+            window.location.href = 'login.html';
             return;
         }
-        for (const app of apps) {
-            const project = app.projects;
-            const card = document.createElement('div');
-            card.className = 'project-card';
-            card.innerHTML = `
-                <div class="project-image" style="background-image:url('${project.image_url || 'default.jpg'}');"></div>
-                <div class="project-content">
-                    <div class="project-category">${project.category || 'General'}</div>
-                    <div class="project-title">${escapeHtml(project.title)}</div>
-                    <div class="project-desc">${escapeHtml(project.description?.substring(0, 120))}...</div>
-                    <div class="project-meta">Applied: ${new Date(app.applied_at).toLocaleDateString()}</div>
-                    <span class="status-badge">${app.status}</span>
-                </div>
-            `;
-            container.appendChild(card);
+        try {
+            currentUser = JSON.parse(session);
+        } catch(e) {
+            window.location.href = 'login.html';
+            return;
         }
-    }
 
-    async function applyForProject(projectId) {
-        const { error } = await supabase
-            .from('project_applications')
-            .insert({ project_id: projectId, user_id: currentUser.user_id, status: 'pending' });
-        if (error) {
-            showToast('Error applying: ' + error.message, 'error');
-        } else {
-            showToast('Application submitted!', 'success');
-            loadProjects();
-            if (document.querySelector('.tab.active').innerText.includes('My')) loadMyApplications();
-        }
-    }
-
-    function formatDate(dateStr) { if(!dateStr) return 'TBD'; return new Date(dateStr).toLocaleDateString(); }
-    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
-    function showToast(msg, type) { const t=document.createElement('div'); t.className='toast'; t.innerText=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),2500); }
-
-    // Tab switching
-    const tabs = document.querySelectorAll('.tab');
-    const availableDiv = document.getElementById('availableTab');
-    const myDiv = document.getElementById('myTab');
-    tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            tabs.forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-            if (tab.innerText.includes('Available')) {
-                availableDiv.style.display = 'block';
-                myDiv.style.display = 'none';
-                loadProjects();
-            } else {
-                availableDiv.style.display = 'none';
-                myDiv.style.display = 'block';
-                loadMyApplications();
+        async function loadProjects() {
+            const { data: projects, error } = await supabaseClient
+                .from('projects')
+                .select('*')
+                .eq('status', 'active')
+                .order('start_date', { ascending: true });
+            if (error) {
+                console.error(error);
+                return;
             }
-        });
-    });
+            const container = document.getElementById('projectsList');
+            container.innerHTML = '';
+            for (const p of projects) {
+                const { data: applied } = await supabaseClient
+                    .from('project_applications')
+                    .select('id')
+                    .eq('project_id', p.id)
+                    .eq('user_id', currentUser.user_id)
+                    .maybeSingle();
+                const alreadyApplied = !!applied;
+                const card = document.createElement('div');
+                card.className = 'project-card';
+                card.innerHTML = `
+                    <div class="project-image" style="background-image:url('${p.image_url || 'default.jpg'}'); background-size:cover;"></div>
+                    <div class="project-content">
+                        <div class="project-category">${escapeHtml(p.category || 'General')}</div>
+                        <div class="project-title">${escapeHtml(p.title)}</div>
+                        <div class="project-desc">${escapeHtml(p.description?.substring(0, 120))}...</div>
+                        <div class="project-meta"><i class="far fa-calendar-alt"></i> ${formatDate(p.start_date)} - ${formatDate(p.end_date)}</div>
+                        <button class="apply-btn" data-id="${p.id}" ${alreadyApplied ? 'disabled' : ''}>
+                            ${alreadyApplied ? '✓ Applied' : 'Apply Now'}
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+                if (!alreadyApplied) {
+                    card.querySelector('.apply-btn').addEventListener('click', () => applyForProject(p.id));
+                }
+            }
+        }
 
-    loadProjects();
+        async function loadMyApplications() {
+            const { data: apps, error } = await supabaseClient
+                .from('project_applications')
+                .select('project_id, status, applied_at, projects(*)')
+                .eq('user_id', currentUser.user_id);
+            if (error) return;
+            const container = document.getElementById('myProjectsList');
+            container.innerHTML = '';
+            if (!apps || apps.length === 0) {
+                container.innerHTML = '<div style="text-align:center; padding:40px;">You have not applied to any project yet.</div>';
+                return;
+            }
+            for (const app of apps) {
+                const project = app.projects;
+                const card = document.createElement('div');
+                card.className = 'project-card';
+                card.innerHTML = `
+                    <div class="project-image" style="background-image:url('${project.image_url || 'default.jpg'}'); background-size:cover;"></div>
+                    <div class="project-content">
+                        <div class="project-category">${escapeHtml(project.category || 'General')}</div>
+                        <div class="project-title">${escapeHtml(project.title)}</div>
+                        <div class="project-desc">${escapeHtml(project.description?.substring(0, 120))}...</div>
+                        <div class="project-meta">Applied: ${new Date(app.applied_at).toLocaleDateString()}</div>
+                        <span class="status-badge">${escapeHtml(app.status)}</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            }
+        }
+
+        async function applyForProject(projectId) {
+            const { error } = await supabaseClient
+                .from('project_applications')
+                .insert({ project_id: projectId, user_id: currentUser.user_id, status: 'pending' });
+            if (error) {
+                showToast('Error applying: ' + error.message, 'error');
+            } else {
+                showToast('Application submitted!', 'success');
+                loadProjects();
+                // If currently on "My Applications" tab, reload it
+                if (document.querySelector('.tab.active').innerText.includes('My')) {
+                    loadMyApplications();
+                }
+            }
+        }
+
+        function formatDate(dateStr) { if(!dateStr) return 'TBD'; return new Date(dateStr).toLocaleDateString(); }
+        function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
+        function showToast(msg, type) { 
+            const t=document.createElement('div'); 
+            t.className='toast'; 
+            t.innerText=msg; 
+            document.body.appendChild(t); 
+            setTimeout(()=>t.remove(),2500); 
+        }
+
+        // Tab switching
+        const tabs = document.querySelectorAll('.tab');
+        const availableDiv = document.getElementById('availableTab');
+        const myDiv = document.getElementById('myTab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                if (tab.innerText.includes('Available')) {
+                    availableDiv.style.display = 'block';
+                    myDiv.style.display = 'none';
+                    loadProjects();
+                } else {
+                    availableDiv.style.display = 'none';
+                    myDiv.style.display = 'block';
+                    loadMyApplications();
+                }
+            });
+        });
+
+        loadProjects();
+    })();
 </script>
 </body>
 </html>
