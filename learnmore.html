@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="theme-color" content="#2d6a4f">
+    <title>About Us - Great United Eastern Foundations</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2d6a4f;
+            --primary-dark: #1b4332;
+            --primary-light: #40916c;
+            --secondary: #74c69d;
+            --accent: #d8f3dc;
+            --light: #f8f9fa;
+            --dark: #1e2d26;
+            --gray: #6c757d;
+            --white: #ffffff;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --border: rgba(45, 106, 79, 0.12);
+            --shadow-sm: 0 4px 15px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 10px 30px rgba(45, 106, 79, 0.12);
+            --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f0f9f4 0%, #e8f5e9 100%);
+            color: var(--dark);
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        /* ===== REUSABLE COMPONENTS ===== */
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .section {
+            padding: 80px 0;
+        }
+
+        .section-title {
+            font-size: clamp(28px, 5vw, 38px);
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .section-subtitle {
+            font-size: 1.1rem;
+            color: var(--gray);
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto 48px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 28px;
+            border-radius: 40px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+            box-shadow: 0 4px 12px rgba(45, 106, 79, 0.25);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(45, 106, 79, 0.35);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* ===== HEADER / NAVIGATION ===== */
+        .navbar {
+            background: var(--white);
+            box-shadow: var(--shadow-sm);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-img {
+            width: 50px;
+            height: 50px;
+            background: var(--primary);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .logo-text h1 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            line-height: 1.2;
+        }
+
+        .logo-text p {
+            font-size: 0.7rem;
+            color: var(--gray);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--primary);
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--primary);
+            cursor: pointer;
+            padding: 8px;
+        }
+
+        /* ===== HERO SECTION ===== */
+        .hero {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 80px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -10%;
+            width: 400px;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 50%;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: clamp(32px, 6vw, 52px);
+            font-weight: 800;
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            opacity: 0.92;
+            margin-bottom: 32px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* ===== MISSION & VISION ===== */
+        .mission-vision {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: -60px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .mv-card {
+            background: var(--white);
+            padding: 32px 24px;
+            border-radius: 28px;
+            text-align: center;
+            box-shadow: var(--shadow-md);
+            transition: transform 0.3s;
+        }
+
+        .mv-card:hover {
+            transform: translateY(-8px);
+        }
+
+        .mv-icon {
+            width: 70px;
+            height: 70px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 2rem;
+            color: var(--primary);
+        }
+
+        .mv-card h3 {
+            font-size: 1.6rem;
+            margin-bottom: 16px;
+            color: var(--primary-dark);
+        }
+
+        .mv-card p {
+            color: var(--gray);
+            line-height: 1.6;
+        }
+
+        /* ===== CORE VALUES ===== */
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 28px;
+            margin-top: 20px;
+        }
+
+        .value-card {
+            background: var(--white);
+            padding: 28px 20px;
+            border-radius: 20px;
+            text-align: center;
+            transition: all 0.3s;
+            border: 1px solid var(--border);
+        }
+
+        .value-card i {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 18px;
+        }
+
+        .value-card h4 {
+            font-size: 1.3rem;
+            margin-bottom: 12px;
+            color: var(--primary-dark);
+        }
+
+        .value-card p {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        /* ===== FOCUS AREAS (from dashboard) ===== */
+        .focus-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 25px;
+        }
+
+        .focus-item {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 28px 20px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s;
+            border-left: 5px solid var(--primary);
+        }
+
+        .focus-item:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .focus-icon {
+            font-size: 2.2rem;
+            margin-bottom: 16px;
+        }
+
+        .focus-item h3 {
+            font-size: 1.25rem;
+            margin-bottom: 12px;
+            color: var(--primary-dark);
+        }
+
+        .focus-item p {
+            font-size: 0.88rem;
+            color: var(--gray);
+            line-height: 1.5;
+        }
+
+        /* ===== IMPACT STATS ===== */
+        .stats-section {
+            background: var(--primary-dark);
+            color: white;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 30px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            opacity: 0.85;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* ===== TEAM SECTION (optional but engaging) ===== */
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .team-card {
+            background: var(--white);
+            border-radius: 24px;
+            overflow: hidden;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.3s;
+        }
+
+        .team-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .team-img {
+            width: 100%;
+            height: 220px;
+            background: linear-gradient(135deg, var(--primary-light), var(--primary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+        }
+
+        .team-info {
+            padding: 20px;
+        }
+
+        .team-info h4 {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+            color: var(--primary-dark);
+        }
+
+        .team-info p {
+            color: var(--gray);
+            font-size: 0.85rem;
+        }
+
+        /* ===== CALL TO ACTION ===== */
+        .cta-section {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            text-align: center;
+            padding: 60px 24px;
+            border-radius: 40px;
+            margin: 40px 0;
+            color: white;
+        }
+
+        .cta-section h2 {
+            font-size: clamp(24px, 4vw, 32px);
+            margin-bottom: 16px;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 28px;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            background: var(--dark);
+            color: #ccc;
+            padding: 48px 0 24px;
+            margin-top: 40px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-col h4 {
+            color: white;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+
+        .footer-col p, .footer-col a {
+            color: #aaa;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .footer-col a:hover {
+            color: var(--secondary);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .social-links a {
+            background: rgba(255,255,255,0.1);
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            transition: 0.2s;
+        }
+
+        .social-links a:hover {
+            background: var(--primary);
+            transform: translateY(-3px);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 24px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.8rem;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 992px) {
+            .section {
+                padding: 60px 0;
+            }
+            .mission-vision {
+                margin-top: -40px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 70px;
+                left: 0;
+                right: 0;
+                background: white;
+                flex-direction: column;
+                padding: 20px;
+                box-shadow: var(--shadow-md);
+                gap: 20px;
+            }
+            .nav-links.active {
+                display: flex;
+            }
+            .mobile-menu-btn {
+                display: block;
+            }
+            .container {
+                padding: 0 20px;
+            }
+            .hero {
+                padding: 60px 0;
+            }
+            .stats-grid {
+                gap: 20px;
+            }
+            .stat-number {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .section-title {
+                font-size: 28px;
+            }
+            .btn {
+                padding: 10px 20px;
+                font-size: 0.85rem;
+            }
+            .mv-card {
+                padding: 24px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navigation Bar -->
+<nav class="navbar">
+    <div class="nav-container">
+        <div class="logo">
+            <div class="logo-img">GUEF</div>
+            <div class="logo-text">
+                <h1>Great United Eastern</h1>
+                <p>Foundations</p>
+            </div>
+        </div>
+        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="nav-links" id="navLinks">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="learnmore.html" class="active">About</a>
+            <a href="projects.html">Projects</a>
+            <a href="events.html">Events</a>
+            <a href="login.html" class="btn btn-outline" style="padding: 6px 18px;">Sign In</a>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero">
+    <div class="container">
+        <div class="hero-content">
+            <h1>Empowering Communities,<br>Building Sustainable Futures</h1>
+            <p>Great United Eastern Foundations works across Eastern regions to create lasting impact through economic empowerment, skills development, and community-led initiatives.</p>
+            <a href="#mission" class="btn btn-primary">Discover Our Mission <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </div>
+</section>
+
+<div class="container">
+    <!-- Mission & Vision Cards (overlapping hero slightly) -->
+    <div class="mission-vision" id="mission">
+        <div class="mv-card">
+            <div class="mv-icon"><i class="fas fa-bullseye"></i></div>
+            <h3>Our Mission</h3>
+            <p>To uplift underserved communities in Eastern Africa by providing sustainable livelihood opportunities, quality skills training, and market access that breaks the cycle of poverty.</p>
+        </div>
+        <div class="mv-card">
+            <div class="mv-icon"><i class="fas fa-eye"></i></div>
+            <h3>Our Vision</h3>
+            <p>A prosperous, self-reliant Eastern Africa where every individual has the tools and opportunities to thrive economically and socially.</p>
+        </div>
+        <div class="mv-card">
+            <div class="mv-icon"><i class="fas fa-hand-holding-heart"></i></div>
+            <h3>Our Approach</h3>
+            <p>We collaborate with local leaders, governments, and private sector partners to design context-driven solutions that are scalable and deeply rooted in community needs.</p>
+        </div>
+    </div>
+
+    <!-- Core Values -->
+    <div class="section">
+        <h2 class="section-title">Our Core Values</h2>
+        <p class="section-subtitle">The principles that guide every initiative and partnership</p>
+        <div class="values-grid">
+            <div class="value-card"><i class="fas fa-leaf"></i><h4>Sustainability</h4><p>Long-term solutions that respect people and planet.</p></div>
+            <div class="value-card"><i class="fas fa-hands-helping"></i><h4>Community First</h4><p>Local ownership and participatory development.</p></div>
+            <div class="value-card"><i class="fas fa-chart-line"></i><h4>Innovation</h4><p>Embracing modern tools and creative approaches.</p></div>
+            <div class="value-card"><i class="fas fa-handshake"></i><h4>Integrity</h4><p>Transparent, accountable, and ethical operations.</p></div>
+        </div>
+    </div>
+
+    <!-- Focus Areas (Extracted from dashboard context) -->
+    <div class="section">
+        <h2 class="section-title">Our Focus Areas</h2>
+        <p class="section-subtitle">Targeted interventions driving measurable change</p>
+        <div class="focus-grid">
+            <div class="focus-item"><div class="focus-icon">🌱</div><h3>Sustainable Livelihoods</h3><p>Supporting agriculture, green technology, and community enterprises for lasting economic growth.</p></div>
+            <div class="focus-item"><div class="focus-icon">🎓</div><h3>Skills Development</h3><p>Vocational training, financial literacy, and entrepreneurship programs to build capacity.</p></div>
+            <div class="focus-item"><div class="focus-icon">💼</div><h3>MSME Support</h3><p>Grants, microfinance, and business incubation services for small enterprises.</p></div>
+            <div class="focus-item"><div class="focus-icon">🌍</div><h3>Market Linkages</h3><p>Connecting local producers to regional and global markets for sustainable growth.</p></div>
+            <div class="focus-item"><div class="focus-icon">👩‍🌾</div><h3>Women Empowerment</h3><p>Dedicated programs boosting women-led businesses and leadership.</p></div>
+            <div class="focus-item"><div class="focus-icon">🌾</div><h3>Climate Resilience</h3><p>Promoting eco-friendly practices and disaster preparedness.</p></div>
+        </div>
+    </div>
+</div>
+
+<!-- Impact Statistics Section (full width) -->
+<section class="stats-section">
+    <div class="container" style="padding: 60px 24px;">
+        <h2 class="section-title" style="color: white; margin-bottom: 20px;">Our Impact So Far</h2>
+        <div class="stats-grid">
+            <div><div class="stat-number">12,500+</div><div class="stat-label">Lives Touched</div></div>
+            <div><div class="stat-number">45+</div><div class="stat-label">Active Projects</div></div>
+            <div><div class="stat-number">28</div><div class="stat-label">Partner Organizations</div></div>
+            <div><div class="stat-number">8</div><div class="stat-label">Counties Reached</div></div>
+        </div>
+    </div>
+</section>
+
+<div class="container">
+    <!-- Leadership / Team (symbolic) -->
+    <div class="section">
+        <h2 class="section-title">Leadership & Team</h2>
+        <p class="section-subtitle">Dedicated professionals driving positive change across Eastern Africa.</p>
+        <div class="team-grid">
+            <div class="team-card"><div class="team-img"><i class="fas fa-user-tie fa-3x"></i></div><div class="team-info"><h4>Dr. Jane Mwangi</h4><p>Executive Director</p></div></div>
+            <div class="team-card"><div class="team-img"><i class="fas fa-chalkboard-user fa-3x"></i></div><div class="team-info"><h4>James Otieno</h4><p>Head of Programs</p></div></div>
+            <div class="team-card"><div class="team-img"><i class="fas fa-hand-holding-usd fa-3x"></i></div><div class="team-info"><h4>Mary Wanjiku</h4><p>Livelihoods Coordinator</p></div></div>
+            <div class="team-card"><div class="team-img"><i class="fas fa-chart-simple fa-3x"></i></div><div class="team-info"><h4>Peter Kimathi</h4><p>Monitoring & Evaluation</p></div></div>
+        </div>
+    </div>
+
+    <!-- Call to Action -->
+    <div class="cta-section">
+        <h2>Ready to make a difference?</h2>
+        <p>Join us in building resilient communities. Whether you're a volunteer, donor, or partner, your contribution matters.</p>
+        <div class="cta-buttons">
+            <a href="dashboard.html" class="btn btn-primary" style="background: white; color: var(--primary-dark);">Get Involved <i class="fas fa-heart"></i></a>
+            <a href="contact.html" class="btn btn-outline" style="border-color: white; color: white;">Contact Us</a>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-col">
+                <h4>Great United Eastern Foundations</h4>
+                <p>Empowering communities for a sustainable and prosperous Eastern Africa.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h4>Quick Links</h4>
+                <a href="dashboard.html">Dashboard</a>
+                <a href="projects.html">Our Projects</a>
+                <a href="events.html">Upcoming Events</a>
+                <a href="resources.html">Resources</a>
+            </div>
+            <div class="footer-col">
+                <h4>Contact</h4>
+                <p><i class="fas fa-map-marker-alt"></i> Nairobi, Kenya</p>
+                <p><i class="fas fa-phone"></i> +254 700 123 456</p>
+                <p><i class="fas fa-envelope"></i> hello@guef.org</p>
+            </div>
+            <div class="footer-col">
+                <h4>Newsletter</h4>
+                <p>Stay updated on our impact stories.</p>
+                <div style="display: flex; margin-top: 12px;">
+                    <input type="email" placeholder="Your email" style="padding: 10px; border-radius: 40px 0 0 40px; border: none; flex:1; outline: none;">
+                    <button style="background: var(--primary); border: none; padding: 0 16px; border-radius: 0 40px 40px 0; color: white; cursor: pointer;"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>&copy; <span id="currentYear"></span> Great United Eastern Foundations. All rights reserved. | <a href="#" style="color:#aaa;">Privacy Policy</a></p>
+        </div>
+    </div>
+</footer>
+
+<script>
+    // Mobile menu toggle
+    const mobileBtn = document.getElementById('mobileMenuBtn');
+    const navLinks = document.getElementById('navLinks');
+    mobileBtn.addEventListener('click', () => {
+        navLinks.classList.toggle('active');
+        const icon = mobileBtn.querySelector('i');
+        if (navLinks.classList.contains('active')) {
+            icon.classList.remove('fa-bars');
+            icon.classList.add('fa-times');
+        } else {
+            icon.classList.remove('fa-times');
+            icon.classList.add('fa-bars');
+        }
+    });
+
+    // Close mobile menu on link click
+    document.querySelectorAll('.nav-links a').forEach(link => {
+        link.addEventListener('click', () => {
+            navLinks.classList.remove('active');
+            mobileBtn.querySelector('i').classList.remove('fa-times');
+            mobileBtn.querySelector('i').classList.add('fa-bars');
+        });
+    });
+
+    // Set current year in footer
+    document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            const targetId = this.getAttribute('href');
+            if (targetId === '#') return;
+            const targetElem = document.querySelector(targetId);
+            if (targetElem) {
+                e.preventDefault();
+                targetElem.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+</script>
+</body>
+</html>
